@@ -31,5 +31,5 @@ kotlin {
 }
 
 application {
-    mainClass = "nl.lengrand.MainKt"
+    mainClass = "nl.lengrand.ExampleKt"
 }
