@@ -92,21 +92,15 @@ class ParserTest {
         val document = fetcher.fromString(incompleteHtml)
         val openGraph = parser.extractOpenGraphTags(document)
 
-        // Verify that the available property is extracted correctly
         assertEquals("The Rock", openGraph.title)
 
-        // Verify that missing properties are empty strings
-        assertEquals("", openGraph.type)
-        assertEquals("", openGraph.url)
-        assertEquals("", openGraph.image)
+        assertEquals(null, openGraph.type)
+        assertEquals(null, openGraph.url)
+        assertEquals(null, openGraph.image)
 
-        // Verify that the OpenGraph object is not valid due to missing required properties
         assertFalse(openGraph.isValid())
-
-        // Verify that only the available tags are extracted
         assertEquals(2, openGraph.tags.size)
 
-        // Verify specific tag content
         val descriptionTag = openGraph.tags.find { it.property == "description" }
         assertNotNull(descriptionTag)
         assertEquals("An action movie about a rock", descriptionTag.content)
@@ -117,16 +111,13 @@ class ParserTest {
         val document = fetcher.fromString(noOgHtml)
         val openGraph = parser.extractOpenGraphTags(document)
 
-        // Verify that all properties are empty strings
-        assertEquals("", openGraph.title)
-        assertEquals("", openGraph.type)
-        assertEquals("", openGraph.url)
-        assertEquals("", openGraph.image)
+        // Verify that all properties are null
+        assertEquals(null, openGraph.title)
+        assertEquals(null, openGraph.type)
+        assertEquals(null, openGraph.url)
+        assertEquals(null, openGraph.image)
 
-        // Verify that the OpenGraph object is not valid
         assertFalse(openGraph.isValid())
-
-        // Verify that no tags are extracted
         assertEquals(0, openGraph.tags.size)
     }
 }

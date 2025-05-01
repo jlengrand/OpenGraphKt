@@ -50,11 +50,18 @@ class Parser {
         println(tags)
         println(cleanTags)
 
-        // Extract the basic required Open Graph properties
-        val title = tags.select("meta[property=og:title]").attr("content")
-        val image = tags.select("meta[property=og:image]").attr("content")
-        val url = tags.select("meta[property=og:url]").attr("content")
-        val type = tags.select("meta[property=og:type]").attr("content")
+        val title =
+            if (tags.select("meta[property=og:title]").isEmpty()) null
+            else tags.select("meta[property=og:title]").attr("content")
+        val image =
+            if (tags.select("meta[property=og:image]").isEmpty()) null
+            else tags.select("meta[property=og:image]").attr("content")
+        val url =
+            if (tags.select("meta[property=og:url]").isEmpty()) null
+            else tags.select("meta[property=og:url]").attr("content")
+        val type =
+            if (tags.select("meta[property=og:type]").isEmpty()) null
+            else tags.select("meta[property=og:type]").attr("content")
 
         return OpenGraph(
             tags,
