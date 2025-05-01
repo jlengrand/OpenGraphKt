@@ -21,7 +21,6 @@ val html = """
     """.trimIndent()
 
 fun main() {
-
     val fetcher = DocumentFetcher()
 
     val docUrl = fetcher.fromUrl("https://www.imdb.com/title/tt0068646/")
