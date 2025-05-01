@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "nl.lengrand"
-version = "1.0-SNAPSHOT"
+version = "0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -24,5 +24,5 @@ kotlin {
 }
 
 application {
-    mainClass = "nl.lengrand.ExampleKt"
+    mainClass = "nl.lengrand.opengraphkt.MainKt"
 }
