@@ -21,8 +21,14 @@ data class OpenGraph(
 
     // TODO : Continue with more
 ){
+    /**
+     * The very minimum requirement for OpenGraph is a set of 4 properties
+     */
     fun isValid(): Boolean {
-        return title != null && type != null && image != null && url != null
+        return tags.find { it.property == "title" } != null &&
+                tags.find { it.property == "url" } != null &&
+                tags.find { it.property == "image" } != null &&
+                tags.find { it.property == "type" } != null
     }
 }
 
