@@ -9,6 +9,7 @@ data class OpenGraphTag(
 )
 
 data class OpenGraph(
+
     // Tags can have multiple values for the same property, so we cannot use a Map.
     val rawTags: Elements,
     val tags: List<OpenGraphTag>,
@@ -19,7 +20,11 @@ data class OpenGraph(
     val url: String? = null,
 
     // TODO : Continue with more
-)
+){
+    fun isValid(): Boolean {
+        return title != null && type != null && image != null && url != null
+    }
+}
 
 class Parser {
 
