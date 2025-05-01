@@ -3,6 +3,10 @@
 [OpenGraphKt](https://github.com/jlengrand/OpenGraphKt) is a minimalist Kotlin multiplatform library that extracts [Open Graph tags](https://ogp.me/) from HTML pages.
 The input HTML can be an inlined string, a file, or a remote URL. OpenGraphKt is a tiny wrapper on top of JSoup. 
 
+## Current status 
+
+* WIP and absolutely not ready for usage.
+
 ## Dependencies
 
 - [JSoup](https://jsoup.org/)
