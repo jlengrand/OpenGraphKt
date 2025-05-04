@@ -1,7 +1,7 @@
 package nl.lengrand.opengraphkt.examples
 
+import nl.lengrand.opengraphkt.DocumentFetcher
 import nl.lengrand.opengraphkt.OpenGraphParser
-import nl.lengrand.opengraphkt.nl.lengrand.opengraphkt.DocumentFetcher
 
 /**
  * Example demonstrating how to use the OpenGraphParser to extract Open Graph data from HTML.
@@ -10,7 +10,7 @@ fun main() {
     // Create instances of the parser and document fetcher
     val parser = OpenGraphParser()
     val fetcher = DocumentFetcher()
-    
+
     // Example 1: Parse Open Graph data from a URL
     println("Example 1: Parsing from URL")
     try {

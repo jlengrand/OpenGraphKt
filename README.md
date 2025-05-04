@@ -6,6 +6,7 @@ The input HTML can be an inlined string, a file, or a remote URL. OpenGraphKt is
 ## Current status 
 
 * WIP and absolutely not ready for usage.
+* Implementation missing the music, video and audio verticals (see https://ogp.me/)
 
 ## Dependencies
 

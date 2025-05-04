@@ -3,6 +3,127 @@ package nl.lengrand.opengraphkt
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
+data class OpenGraphTag(
+    val property: String,
+    val content: String,
+)
+
+/**
+ * Represents structured Open Graph data extracted from HTML.
+ */
+data class OpenGraphData(
+    val tags: List<OpenGraphTag>,
+
+    // Basic metadata
+    val title: String?,
+    val type: String?,
+    val url: String?,
+    val description: String?,
+    val siteName: String?,
+    val determiner: String?,
+    val locale: String?,
+    val localeAlternate: List<String>,
+
+    // Structured properties
+    val images: List<OpenGraphImage>,
+    val videos: List<OpenGraphVideo>,
+    val audios: List<OpenGraphAudio>,
+
+    // Optional type-specific metadata
+    val article: OpenGraphArticle?,
+    val profile: OpenGraphProfile?,
+    val book: OpenGraphBook?
+) {
+    /**
+     * Checks if this Open Graph data contains the minimum required properties.
+     *
+     * According to the Open Graph protocol, the minimum required properties are:
+     * - og:title
+     * - og:type
+     * - og:image
+     * - og:url
+     *
+     * @return true if all required properties are present, false otherwise
+     */
+    fun isValid(): Boolean {
+        return title != null && type != null && images.isNotEmpty() && url != null
+    }
+
+    /**
+     * Gets the first image URL, or null if no images are present.
+     *
+     * @return The URL of the first image, or null
+     */
+    fun getFirstImageUrl(): String? {
+        return images.firstOrNull()?.url
+    }
+}
+
+/**
+ * Represents an Open Graph image.
+ */
+data class OpenGraphImage(
+    val url: String?,
+    val secureUrl: String?,
+    val type: String?,
+    val width: Int?,
+    val height: Int?,
+    val alt: String?
+)
+
+/**
+ * Represents an Open Graph video.
+ */
+data class OpenGraphVideo(
+    val url: String?,
+    val secureUrl: String?,
+    val type: String?,
+    val width: Int?,
+    val height: Int?,
+    val duration: Int?
+)
+
+/**
+ * Represents an Open Graph audio.
+ */
+data class OpenGraphAudio(
+    val url: String?,
+    val secureUrl: String?,
+    val type: String?
+)
+
+/**
+ * Represents Open Graph article metadata.
+ */
+data class OpenGraphArticle(
+    val publishedTime: String?,
+    val modifiedTime: String?,
+    val expirationTime: String?,
+    val section: String?,
+    val authors: List<String>,
+    val tags: List<String>
+)
+
+/**
+ * Represents Open Graph profile metadata.
+ */
+data class OpenGraphProfile(
+    val firstName: String?,
+    val lastName: String?,
+    val username: String?,
+    val gender: String?
+)
+
+/**
+ * Represents Open Graph book metadata.
+ */
+data class OpenGraphBook(
+    val authors: List<String>,
+    val isbn: String?,
+    val releaseDate: String?,
+    val tags: List<String>
+)
+
 /**
  * A comprehensive parser for Open Graph protocol tags.
  * 
@@ -75,17 +196,17 @@ class OpenGraphParser {
         val videos = buildVideos(groupedTags.getOrDefault("video", emptyList()))
         val audios = buildAudios(groupedTags.getOrDefault("audio", emptyList()))
 
-        // Build article specific properties if type is "article"
+        // Build article-specific properties if the type is "article"
         val article = if (type == "article") buildArticle(groupedTags) else null
 
-        // Build profile specific properties if type is "profile"
+        // Build profile-specific properties if the type is "profile"
         val profile = if (type == "profile") buildProfile(groupedTags) else null
 
-        // Build book specific properties if type is "book"
+        // Build book-specific properties if the type is "book"
         val book = if (type == "book") buildBook(groupedTags) else null
 
         return OpenGraphData(
-            rawTags = tags,
+            tags = tags,
             title = title,
             type = type,
             url = url,
@@ -132,41 +253,34 @@ class OpenGraphParser {
      * @return A list of OpenGraphImage objects
      */
     private fun buildImages(imageTags: List<OpenGraphTag>): List<OpenGraphImage> {
-        // For multiple images, we need a different approach
-        // First, find all base image tags (those with property "image" or "image:url")
         val baseImageTags = imageTags.filter { 
             it.property == "image" || it.property == "image:url" 
         }
 
-        // If we have no base image tags, return an empty list
+        // No images
         if (baseImageTags.isEmpty()) {
             return emptyList()
         }
 
-        // Create a list to hold our image objects
         val images = mutableListOf<OpenGraphImage>()
 
         // For each base image tag, create an image object and find its attributes
         baseImageTags.forEach { baseTag ->
-            // Find the index of this base tag in the original list
             val baseIndex = imageTags.indexOf(baseTag)
 
-            // Find all attribute tags that come after this base tag and before the next base tag
             val nextBaseIndex = imageTags.subList(baseIndex + 1, imageTags.size)
                 .indexOfFirst { it.property == "image" || it.property == "image:url" }
-
             val endIndex = if (nextBaseIndex == -1) imageTags.size else baseIndex + 1 + nextBaseIndex
+
             val attributeTags = imageTags.subList(baseIndex + 1, endIndex)
                 .filter { it.property.startsWith("image:") }
 
-            // Extract attributes
             val secureUrl = attributeTags.firstOrNull { it.property == "image:secure_url" }?.content
             val type = attributeTags.firstOrNull { it.property == "image:type" }?.content
             val width = attributeTags.firstOrNull { it.property == "image:width" }?.content?.toIntOrNull()
             val height = attributeTags.firstOrNull { it.property == "image:height" }?.content?.toIntOrNull()
             val alt = attributeTags.firstOrNull { it.property == "image:alt" }?.content
 
-            // Create the image object
             images.add(OpenGraphImage(
                 url = baseTag.content,
                 secureUrl = secureUrl,
@@ -177,7 +291,7 @@ class OpenGraphParser {
             ))
         }
 
-        return images
+        return images.toList()
     }
 
     /**
@@ -187,26 +301,21 @@ class OpenGraphParser {
      * @return A list of OpenGraphVideo objects
      */
     private fun buildVideos(videoTags: List<OpenGraphTag>): List<OpenGraphVideo> {
-        // For multiple videos, we need a different approach
-        // First, find all base video tags (those with property "video" or "video:url")
-        val baseVideoTags = videoTags.filter { 
+        val baseVideoTags = videoTags.filter {
             it.property == "video" || it.property == "video:url" 
         }
 
-        // If we have no base video tags, return an empty list
+        // No videos
         if (baseVideoTags.isEmpty()) {
             return emptyList()
         }
 
-        // Create a list to hold our video objects
         val videos = mutableListOf<OpenGraphVideo>()
 
         // For each base video tag, create a video object and find its attributes
         baseVideoTags.forEach { baseTag ->
-            // Find the index of this base tag in the original list
             val baseIndex = videoTags.indexOf(baseTag)
 
-            // Find all attribute tags that come after this base tag and before the next base tag
             val nextBaseIndex = videoTags.subList(baseIndex + 1, videoTags.size)
                 .indexOfFirst { it.property == "video" || it.property == "video:url" }
 
@@ -214,14 +323,12 @@ class OpenGraphParser {
             val attributeTags = videoTags.subList(baseIndex + 1, endIndex)
                 .filter { it.property.startsWith("video:") }
 
-            // Extract attributes
             val secureUrl = attributeTags.firstOrNull { it.property == "video:secure_url" }?.content
             val type = attributeTags.firstOrNull { it.property == "video:type" }?.content
             val width = attributeTags.firstOrNull { it.property == "video:width" }?.content?.toIntOrNull()
             val height = attributeTags.firstOrNull { it.property == "video:height" }?.content?.toIntOrNull()
             val duration = attributeTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
 
-            // Create the video object
             videos.add(OpenGraphVideo(
                 url = baseTag.content,
                 secureUrl = secureUrl,
@@ -232,7 +339,7 @@ class OpenGraphParser {
             ))
         }
 
-        return videos
+        return videos.toList()
     }
 
     /**
@@ -242,26 +349,21 @@ class OpenGraphParser {
      * @return A list of OpenGraphAudio objects
      */
     private fun buildAudios(audioTags: List<OpenGraphTag>): List<OpenGraphAudio> {
-        // For multiple audios, we need a different approach
-        // First, find all base audio tags (those with property "audio" or "audio:url")
-        val baseAudioTags = audioTags.filter { 
+        val baseAudioTags = audioTags.filter {
             it.property == "audio" || it.property == "audio:url" 
         }
 
-        // If we have no base audio tags, return an empty list
+        // No audio
         if (baseAudioTags.isEmpty()) {
             return emptyList()
         }
 
-        // Create a list to hold our audio objects
         val audios = mutableListOf<OpenGraphAudio>()
 
         // For each base audio tag, create an audio object and find its attributes
         baseAudioTags.forEach { baseTag ->
-            // Find the index of this base tag in the original list
             val baseIndex = audioTags.indexOf(baseTag)
 
-            // Find all attribute tags that come after this base tag and before the next base tag
             val nextBaseIndex = audioTags.subList(baseIndex + 1, audioTags.size)
                 .indexOfFirst { it.property == "audio" || it.property == "audio:url" }
 
@@ -269,11 +371,9 @@ class OpenGraphParser {
             val attributeTags = audioTags.subList(baseIndex + 1, endIndex)
                 .filter { it.property.startsWith("audio:") }
 
-            // Extract attributes
             val secureUrl = attributeTags.firstOrNull { it.property == "audio:secure_url" }?.content
             val type = attributeTags.firstOrNull { it.property == "audio:type" }?.content
 
-            // Create the audio object
             audios.add(OpenGraphAudio(
                 url = baseTag.content,
                 secureUrl = secureUrl,
@@ -281,7 +381,7 @@ class OpenGraphParser {
             ))
         }
 
-        return audios
+        return audios.toList()
     }
 
     /**
@@ -365,236 +465,4 @@ class OpenGraphParser {
             tags = tags
         )
     }
-
-    /**
-     * Groups structured tags (like image:width, image:height) by their index.
-     * 
-     * @param tags The list of structured OpenGraphTag objects
-     * @return A map of index to list of tags
-     */
-    private fun groupStructuredTags(tags: List<OpenGraphTag>): Map<Int, List<OpenGraphTag>> {
-        // If there are no tags, return an empty map
-        if (tags.isEmpty()) {
-            return emptyMap()
-        }
-
-        // If there's only one item with no index, return it as index 0
-        if (tags.size == 1 && !tags[0].property.contains(":")) {
-            return mapOf(0 to tags)
-        }
-
-        // For multiple images/videos/audios, we need to handle them differently
-        // First, identify the base properties (image, video, audio) without any additional attributes
-        val baseTags = tags.filter { 
-            !it.property.contains(":") || 
-            it.property.endsWith(":url") 
-        }
-
-        // If we have multiple base tags, we need to create separate groups for each
-        if (baseTags.size > 1) {
-            val result = mutableMapOf<Int, MutableList<OpenGraphTag>>()
-
-            // Add each base tag as a separate group
-            baseTags.forEachIndexed { index, baseTag ->
-                result[index] = mutableListOf(baseTag)
-            }
-
-            // Now distribute the attribute tags to the appropriate base tag
-            // For simplicity, we'll assign attributes to the nearest preceding base tag
-            val attributeTags = tags.filter { 
-                it.property.contains(":") && 
-                !it.property.endsWith(":url") 
-            }
-
-            // Group attribute tags by their base property (before the first colon)
-            val groupedAttributeTags = attributeTags.groupBy { tag ->
-                tag.property.split(":", limit = 2)[0]
-            }
-
-            // For each base property, find all its attributes and distribute them
-            groupedAttributeTags.forEach { (baseProperty, attributes) ->
-                // Find all base tags with this property
-                val baseIndices = baseTags.mapIndexedNotNull { index, tag -> 
-                    if (tag.property == baseProperty || tag.property == "$baseProperty:url") index else null 
-                }
-
-                // If we have explicit indices in the attributes, use them
-                val indexedAttributes = attributes.filter { it.property.matches(Regex(".*:\\d+:.*")) }
-                    .groupBy { tag ->
-                        val regex = Regex(".*:(\\d+):.*")
-                        val matchResult = regex.find(tag.property)
-                        matchResult?.groupValues?.get(1)?.toIntOrNull() ?: 0
-                    }
-
-                // Add indexed attributes to the appropriate base tag
-                indexedAttributes.forEach { (attrIndex, attrs) ->
-                    if (attrIndex < baseIndices.size) {
-                        result[baseIndices[attrIndex]]?.addAll(attrs) ?: run {
-                            result[baseIndices[attrIndex]] = attrs.toMutableList()
-                        }
-                    }
-                }
-
-                // Handle non-indexed attributes
-                val nonIndexedAttributes = attributes.filter { !it.property.matches(Regex(".*:\\d+:.*")) }
-
-                // Distribute non-indexed attributes to all base tags of this type
-                // For width, height, etc. that should apply to a specific image, this is not ideal,
-                // but without explicit indices, we can't know which attribute belongs to which base tag
-                baseIndices.forEachIndexed { i, baseIndex ->
-                    // For the first base tag, add all non-indexed attributes
-                    // For subsequent base tags, only add attributes that make sense to duplicate
-                    if (i == 0 || nonIndexedAttributes.none { it.property.contains("width") || it.property.contains("height") }) {
-                        result[baseIndex]?.addAll(nonIndexedAttributes) ?: run {
-                            result[baseIndex] = nonIndexedAttributes.toMutableList()
-                        }
-                    }
-                }
-            }
-
-            return result
-        }
-
-        // If we only have one base tag or no base tags, fall back to the original logic
-        // Group tags by their explicit index if available
-        val indexedTags = tags.filter { it.property.matches(Regex(".*:\\d+:.*")) }
-            .groupBy { tag ->
-                val regex = Regex(".*:(\\d+):.*")
-                val matchResult = regex.find(tag.property)
-                matchResult?.groupValues?.get(1)?.toIntOrNull() ?: 0
-            }
-
-        // Handle tags without explicit index
-        val nonIndexedTags = tags.filter { !it.property.matches(Regex(".*:\\d+:.*")) }
-
-        // If we have indexed tags, merge non-indexed tags with index 0
-        if (indexedTags.isNotEmpty()) {
-            val result = indexedTags.toMutableMap()
-            if (nonIndexedTags.isNotEmpty()) {
-                result[0] = (result[0] ?: emptyList()) + nonIndexedTags
-            }
-            return result
-        }
-
-        // If we only have non-indexed tags, treat them as a single item
-        return mapOf(0 to nonIndexedTags)
-    }
 }
-
-// Using the existing OpenGraphTag class from Parser.kt
-
-/**
- * Represents structured Open Graph data extracted from HTML.
- */
-data class OpenGraphData(
-    val rawTags: List<OpenGraphTag>,
-
-    // Basic metadata
-    val title: String?,
-    val type: String?,
-    val url: String?,
-    val description: String?,
-    val siteName: String?,
-    val determiner: String?,
-    val locale: String?,
-    val localeAlternate: List<String>,
-
-    // Structured properties
-    val images: List<OpenGraphImage>,
-    val videos: List<OpenGraphVideo>,
-    val audios: List<OpenGraphAudio>,
-
-    // Optional type-specific metadata
-    val article: OpenGraphArticle?,
-    val profile: OpenGraphProfile?,
-    val book: OpenGraphBook?
-) {
-    /**
-     * Checks if this Open Graph data contains the minimum required properties.
-     * 
-     * According to the Open Graph protocol, the minimum required properties are:
-     * - og:title
-     * - og:type
-     * - og:image
-     * - og:url
-     * 
-     * @return true if all required properties are present, false otherwise
-     */
-    fun isValid(): Boolean {
-        return title != null && type != null && images.isNotEmpty() && url != null
-    }
-
-    /**
-     * Gets the first image URL, or null if no images are present.
-     * 
-     * @return The URL of the first image, or null
-     */
-    fun getFirstImageUrl(): String? {
-        return images.firstOrNull()?.url
-    }
-}
-
-/**
- * Represents an Open Graph image.
- */
-data class OpenGraphImage(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?,
-    val width: Int?,
-    val height: Int?,
-    val alt: String?
-)
-
-/**
- * Represents an Open Graph video.
- */
-data class OpenGraphVideo(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?,
-    val width: Int?,
-    val height: Int?,
-    val duration: Int?
-)
-
-/**
- * Represents an Open Graph audio.
- */
-data class OpenGraphAudio(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?
-)
-
-/**
- * Represents Open Graph article metadata.
- */
-data class OpenGraphArticle(
-    val publishedTime: String?,
-    val modifiedTime: String?,
-    val expirationTime: String?,
-    val section: String?,
-    val authors: List<String>,
-    val tags: List<String>
-)
-
-/**
- * Represents Open Graph profile metadata.
- */
-data class OpenGraphProfile(
-    val firstName: String?,
-    val lastName: String?,
-    val username: String?,
-    val gender: String?
-)
-
-/**
- * Represents Open Graph book metadata.
- */
-data class OpenGraphBook(
-    val authors: List<String>,
-    val isbn: String?,
-    val releaseDate: String?,
-    val tags: List<String>
-)

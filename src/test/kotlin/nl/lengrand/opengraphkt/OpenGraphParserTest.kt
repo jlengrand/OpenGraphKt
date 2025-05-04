@@ -1,9 +1,7 @@
 package nl.lengrand.opengraphkt
 
-import nl.lengrand.opengraphkt.nl.lengrand.opengraphkt.DocumentFetcher
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -153,7 +151,7 @@ class OpenGraphParserTest {
         assertTrue(openGraphData.isValid())
 
         // Verify that all tags are extracted
-        assertEquals(18, openGraphData.rawTags.size)
+        assertEquals(18, openGraphData.tags.size)
 
         // Verify image properties
         assertEquals(1, openGraphData.images.size)

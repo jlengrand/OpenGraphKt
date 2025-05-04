@@ -1,4 +1,4 @@
-package nl.lengrand.opengraphkt.nl.lengrand.opengraphkt
+package nl.lengrand.opengraphkt
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
