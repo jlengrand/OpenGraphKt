@@ -14,10 +14,20 @@ data class OpenGraph(
     val rawTags: Elements,
     val tags: List<OpenGraphTag>,
 
+    // Minimal
     val title: String? = null,
     val type: String? = null,
     val image: String? = null, // Do we just take the first here? There might be several
     val url: String? = null,
+
+    // Optional
+    val audio: String? = null,
+    val description: String? = null,
+    val determiner: String? = null,
+    val locale: String? = null,
+//    val localeAlternate: List<String> = emptyList(),
+    val siteName: String? = null,
+    val video: String? = null,
 
     // TODO : Continue with more
 ){
@@ -33,6 +43,11 @@ data class OpenGraph(
 }
 
 class Parser {
+
+    private fun getTagContent(tags: Elements, tag: String) : String? {
+        return if (tags.select("meta[property=og:${tag}]").isEmpty()) null
+        else tags.select("meta[property=og:${tag}]").attr("content")
+    }
 
     /**
      * Extracts Open Graph tags from a JSoup Document
@@ -50,18 +65,20 @@ class Parser {
         println(tags)
         println(cleanTags)
 
-        val title =
-            if (tags.select("meta[property=og:title]").isEmpty()) null
-            else tags.select("meta[property=og:title]").attr("content")
-        val image =
-            if (tags.select("meta[property=og:image]").isEmpty()) null
-            else tags.select("meta[property=og:image]").attr("content")
-        val url =
-            if (tags.select("meta[property=og:url]").isEmpty()) null
-            else tags.select("meta[property=og:url]").attr("content")
-        val type =
-            if (tags.select("meta[property=og:type]").isEmpty()) null
-            else tags.select("meta[property=og:type]").attr("content")
+        // Minimal
+        val title = getTagContent(tags, "title")
+        val image = getTagContent(tags, "image")
+        val url = getTagContent(tags, "url")
+        val type = getTagContent(tags, "type")
+
+        // Optional
+        val audio = getTagContent(tags, "audio")
+        val description = getTagContent(tags, "description")
+        val determiner = getTagContent(tags, "determiner")
+        val locale = getTagContent(tags, "locale")
+        val siteName = getTagContent(tags, "site_name")
+        val video = getTagContent(tags, "video")
+
 
         return OpenGraph(
             tags,
@@ -69,7 +86,14 @@ class Parser {
             title,
             type,
             image,
-            url )
+            url,
+            audio,
+            description,
+            determiner,
+            locale,
+            siteName,
+            video
+        )
     }
 
 }

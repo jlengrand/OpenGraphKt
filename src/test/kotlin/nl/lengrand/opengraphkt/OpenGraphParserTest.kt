@@ -1,0 +1,281 @@
+package nl.lengrand.opengraphkt
+
+import nl.lengrand.opengraphkt.nl.lengrand.opengraphkt.DocumentFetcher
+import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+class OpenGraphParserTest {
+
+    private val parser = OpenGraphParser()
+    private val fetcher = DocumentFetcher()
+
+    // Sample HTML with all required OpenGraph tags and some structured properties
+    private val completeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Open Graph Example</title>
+            <meta property="og:title" content="The Rock" />
+            <meta property="og:type" content="video.movie" />
+            <meta property="og:url" content="https://example.com/the-rock" />
+            <meta property="og:image" content="https://example.com/rock.jpg" />
+            <meta property="og:image:width" content="300" />
+            <meta property="og:image:height" content="200" />
+            <meta property="og:image:alt" content="A promotional image for The Rock" />
+            <meta property="og:description" content="An action movie about a rock" />
+            <meta property="og:site_name" content="Example Movies" />
+            <meta property="og:locale" content="en_US" />
+            <meta property="og:locale:alternate" content="fr_FR" />
+            <meta property="og:locale:alternate" content="es_ES" />
+            <meta property="og:video" content="https://example.com/rock-trailer.mp4" />
+            <meta property="og:video:width" content="1280" />
+            <meta property="og:video:height" content="720" />
+            <meta property="og:video:type" content="video/mp4" />
+            <meta property="og:audio" content="https://example.com/rock-theme.mp3" />
+            <meta property="og:audio:type" content="audio/mpeg" />
+        </head>
+        <body>
+            <h1>Example Page</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    // Sample HTML with article-specific tags
+    private val articleHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Article Example</title>
+            <meta property="og:title" content="Breaking News" />
+            <meta property="og:type" content="article" />
+            <meta property="og:url" content="https://example.com/news/breaking" />
+            <meta property="og:image" content="https://example.com/news.jpg" />
+            <meta property="og:description" content="Latest breaking news" />
+            <meta property="og:article:published_time" content="2023-01-01T00:00:00Z" />
+            <meta property="og:article:modified_time" content="2023-01-02T12:00:00Z" />
+            <meta property="og:article:section" content="News" />
+            <meta property="og:article:author" content="John Doe" />
+            <meta property="og:article:author" content="Jane Smith" />
+            <meta property="og:article:tag" content="breaking" />
+            <meta property="og:article:tag" content="news" />
+        </head>
+        <body>
+            <h1>Breaking News</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    // Sample HTML with profile-specific tags
+    private val profileHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Profile Example</title>
+            <meta property="og:title" content="John Doe" />
+            <meta property="og:type" content="profile" />
+            <meta property="og:url" content="https://example.com/profile/johndoe" />
+            <meta property="og:image" content="https://example.com/johndoe.jpg" />
+            <meta property="og:description" content="John Doe's profile" />
+            <meta property="og:profile:first_name" content="John" />
+            <meta property="og:profile:last_name" content="Doe" />
+            <meta property="og:profile:username" content="johndoe" />
+            <meta property="og:profile:gender" content="male" />
+        </head>
+        <body>
+            <h1>John Doe</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    // Sample HTML with book-specific tags
+    private val bookHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Book Example</title>
+            <meta property="og:title" content="The Great Novel" />
+            <meta property="og:type" content="book" />
+            <meta property="og:url" content="https://example.com/books/great-novel" />
+            <meta property="og:image" content="https://example.com/book-cover.jpg" />
+            <meta property="og:description" content="A great novel" />
+            <meta property="og:book:author" content="Famous Author" />
+            <meta property="og:book:isbn" content="1234567890123" />
+            <meta property="og:book:release_date" content="2023-01-01" />
+            <meta property="og:book:tag" content="fiction" />
+            <meta property="og:book:tag" content="novel" />
+        </head>
+        <body>
+            <h1>The Great Novel</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    // Sample HTML with multiple images
+    private val multipleImagesHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Multiple Images Example</title>
+            <meta property="og:title" content="Photo Gallery" />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://example.com/gallery" />
+            <meta property="og:image" content="https://example.com/image1.jpg" />
+            <meta property="og:image:width" content="800" />
+            <meta property="og:image:height" content="600" />
+            <meta property="og:image" content="https://example.com/image2.jpg" />
+            <meta property="og:image:width" content="1024" />
+            <meta property="og:image:height" content="768" />
+            <meta property="og:image" content="https://example.com/image3.jpg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="900" />
+            <meta property="og:description" content="A gallery of images" />
+        </head>
+        <body>
+            <h1>Photo Gallery</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with complete OpenGraph tags`() {
+        val document = fetcher.fromString(completeHtml)
+        val openGraphData = parser.parse(document)
+
+        // Verify that all required properties are extracted correctly
+        assertEquals("The Rock", openGraphData.title)
+        assertEquals("video.movie", openGraphData.type)
+        assertEquals("https://example.com/the-rock", openGraphData.url)
+        
+        // Verify that the OpenGraphData object is valid
+        assertTrue(openGraphData.isValid())
+
+        // Verify that all tags are extracted
+        assertEquals(18, openGraphData.rawTags.size)
+
+        // Verify image properties
+        assertEquals(1, openGraphData.images.size)
+        val image = openGraphData.images[0]
+        assertEquals("https://example.com/rock.jpg", image.url)
+        assertEquals(300, image.width)
+        assertEquals(200, image.height)
+        assertEquals("A promotional image for The Rock", image.alt)
+
+        // Verify video properties
+        assertEquals(1, openGraphData.videos.size)
+        val video = openGraphData.videos[0]
+        assertEquals("https://example.com/rock-trailer.mp4", video.url)
+        assertEquals(1280, video.width)
+        assertEquals(720, video.height)
+        assertEquals("video/mp4", video.type)
+
+        // Verify audio properties
+        assertEquals(1, openGraphData.audios.size)
+        val audio = openGraphData.audios[0]
+        assertEquals("https://example.com/rock-theme.mp3", audio.url)
+        assertEquals("audio/mpeg", audio.type)
+
+        // Verify locale properties
+        assertEquals("en_US", openGraphData.locale)
+        assertEquals(2, openGraphData.localeAlternate.size)
+        assertTrue(openGraphData.localeAlternate.contains("fr_FR"))
+        assertTrue(openGraphData.localeAlternate.contains("es_ES"))
+    }
+
+    @Test
+    fun `test parse with article-specific tags`() {
+        val document = fetcher.fromString(articleHtml)
+        val openGraphData = parser.parse(document)
+
+        // Verify basic properties
+        assertEquals("Breaking News", openGraphData.title)
+        assertEquals("article", openGraphData.type)
+        assertEquals("https://example.com/news/breaking", openGraphData.url)
+        assertEquals("Latest breaking news", openGraphData.description)
+        
+        // Verify article-specific properties
+        assertNotNull(openGraphData.article)
+        assertEquals("2023-01-01T00:00:00Z", openGraphData.article?.publishedTime)
+        assertEquals("2023-01-02T12:00:00Z", openGraphData.article?.modifiedTime)
+        assertEquals("News", openGraphData.article?.section)
+        assertEquals(2, openGraphData.article?.authors?.size)
+        assertTrue(openGraphData.article?.authors?.contains("John Doe") ?: false)
+        assertTrue(openGraphData.article?.authors?.contains("Jane Smith") ?: false)
+        assertEquals(2, openGraphData.article?.tags?.size)
+        assertTrue(openGraphData.article?.tags?.contains("breaking") ?: false)
+        assertTrue(openGraphData.article?.tags?.contains("news") ?: false)
+    }
+
+    @Test
+    fun `test parse with profile-specific tags`() {
+        val document = fetcher.fromString(profileHtml)
+        val openGraphData = parser.parse(document)
+
+        // Verify basic properties
+        assertEquals("John Doe", openGraphData.title)
+        assertEquals("profile", openGraphData.type)
+        assertEquals("https://example.com/profile/johndoe", openGraphData.url)
+        assertEquals("John Doe's profile", openGraphData.description)
+        
+        // Verify profile-specific properties
+        assertNotNull(openGraphData.profile)
+        assertEquals("John", openGraphData.profile?.firstName)
+        assertEquals("Doe", openGraphData.profile?.lastName)
+        assertEquals("johndoe", openGraphData.profile?.username)
+        assertEquals("male", openGraphData.profile?.gender)
+    }
+
+    @Test
+    fun `test parse with book-specific tags`() {
+        val document = fetcher.fromString(bookHtml)
+        val openGraphData = parser.parse(document)
+
+        // Verify basic properties
+        assertEquals("The Great Novel", openGraphData.title)
+        assertEquals("book", openGraphData.type)
+        assertEquals("https://example.com/books/great-novel", openGraphData.url)
+        assertEquals("A great novel", openGraphData.description)
+        
+        // Verify book-specific properties
+        assertNotNull(openGraphData.book)
+        assertEquals(1, openGraphData.book?.authors?.size)
+        assertEquals("Famous Author", openGraphData.book?.authors?.get(0))
+        assertEquals("1234567890123", openGraphData.book?.isbn)
+        assertEquals("2023-01-01", openGraphData.book?.releaseDate)
+        assertEquals(2, openGraphData.book?.tags?.size)
+        assertTrue(openGraphData.book?.tags?.contains("fiction") ?: false)
+        assertTrue(openGraphData.book?.tags?.contains("novel") ?: false)
+    }
+
+    @Test
+    fun `test parse with multiple images`() {
+        val document = fetcher.fromString(multipleImagesHtml)
+        val openGraphData = parser.parse(document)
+
+        // Verify basic properties
+        assertEquals("Photo Gallery", openGraphData.title)
+        assertEquals("website", openGraphData.type)
+        assertEquals("https://example.com/gallery", openGraphData.url)
+        assertEquals("A gallery of images", openGraphData.description)
+        
+        // Verify multiple images
+        assertEquals(3, openGraphData.images.size)
+        
+        // First image
+        assertEquals("https://example.com/image1.jpg", openGraphData.images[0].url)
+        assertEquals(800, openGraphData.images[0].width)
+        assertEquals(600, openGraphData.images[0].height)
+        
+        // Second image
+        assertEquals("https://example.com/image2.jpg", openGraphData.images[1].url)
+        assertEquals(1024, openGraphData.images[1].width)
+        assertEquals(768, openGraphData.images[1].height)
+        
+        // Third image
+        assertEquals("https://example.com/image3.jpg", openGraphData.images[2].url)
+        assertEquals(1200, openGraphData.images[2].width)
+        assertEquals(900, openGraphData.images[2].height)
+    }
+}
