@@ -16,70 +16,28 @@ fun main() {
         val openGraphData = parser.parse(document)
 
         println("Title: ${openGraphData.title}")
-        println("Type: ${openGraphData.type}")
-        println("URL: ${openGraphData.url}")
-        println("Description: ${openGraphData.description}")
-        println("Site Name: ${openGraphData.siteName}")
-
-        println("Images: ${openGraphData.images.size}")
-        openGraphData.images.forEachIndexed { index, image ->
-            println("Image ${index + 1}: ${image.url}")
-            println("  Width: ${image.width}")
-            println("  Height: ${image.height}")
-            println("  Alt: ${image.alt}")
-        }
-
         println("Is valid: ${openGraphData.isValid()}")
     } catch (e: Exception) {
         println("Error parsing URL: ${e.message}")
     }
 
-    // Example 1.5: Parse Open Graph data from a file
-    println("\nExample 1.5: Parsing from File")
+    // Example 2: Parse Open Graph data from a file
+    println("\nExample 2: Parsing from File")
     try {
-        // This is just an example. In a real application, you would use an actual HTML file.
-        val tempFile = File.createTempFile("example", ".html")
-        tempFile.deleteOnExit() // Clean up after ourselves
-
-        // Write some sample HTML to the file
-        val sampleHtml = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>File Example</title>
-                <meta property="og:title" content="File Example Title" />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://example.com/file-example" />
-                <meta property="og:image" content="https://example.com/file-image.jpg" />
-                <meta property="og:description" content="An example of parsing from a file" />
-            </head>
-            <body>
-                <h1>File Example</h1>
-            </body>
-            </html>
-        """.trimIndent()
-        tempFile.writeText(sampleHtml)
+        val resourceUrl = object {}.javaClass.getResource("/example.html")
+        val resourceFile = File(resourceUrl.toURI())
 
         // Parse the file
-        val document = fetcher.fromFile(tempFile)
+        val document = fetcher.fromFile(resourceFile)
         val openGraphData = parser.parse(document)
 
         println("Title: ${openGraphData.title}")
-        println("Type: ${openGraphData.type}")
-        println("URL: ${openGraphData.url}")
-        println("Description: ${openGraphData.description}")
-
-        println("Images: ${openGraphData.images.size}")
-        openGraphData.images.forEachIndexed { index, image ->
-            println("Image ${index + 1}: ${image.url}")
-        }
-
         println("Is valid: ${openGraphData.isValid()}")
     } catch (e: Exception) {
         println("Error parsing file: ${e.message}")
     }
 
-    // Example 2: Parse Open Graph data from an HTML string
+    // Example 3: Parse Open Graph data from an HTML string
     println("\nExample 2: Parsing from HTML string")
     val html = """
         <!DOCTYPE html>
@@ -105,95 +63,5 @@ fun main() {
     val openGraphData = parser.parse(document)
 
     println("Title: ${openGraphData.title}")
-    println("Type: ${openGraphData.type}")
-    println("URL: ${openGraphData.url}")
-    println("Description: ${openGraphData.description}")
-    println("Site Name: ${openGraphData.siteName}")
-
-    println("Images: ${openGraphData.images.size}")
-    openGraphData.images.forEachIndexed { index, image ->
-        println("Image ${index + 1}: ${image.url}")
-        println("  Width: ${image.width}")
-        println("  Height: ${image.height}")
-    }
-
     println("Is valid: ${openGraphData.isValid()}")
-
-    // Example 3: Working with multiple images
-    println("\nExample 3: Working with multiple images")
-    val multipleImagesHtml = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Multiple Images Example</title>
-            <meta property="og:title" content="Photo Gallery" />
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://example.com/gallery" />
-            <meta property="og:image" content="https://example.com/image1.jpg" />
-            <meta property="og:image:width" content="800" />
-            <meta property="og:image:height" content="600" />
-            <meta property="og:image" content="https://example.com/image2.jpg" />
-            <meta property="og:image:width" content="1024" />
-            <meta property="og:image:height" content="768" />
-            <meta property="og:image" content="https://example.com/image3.jpg" />
-            <meta property="og:image:width" content="1200" />
-            <meta property="og:image:height" content="900" />
-            <meta property="og:description" content="A gallery of images" />
-        </head>
-        <body>
-            <h1>Photo Gallery</h1>
-        </body>
-        </html>
-    """.trimIndent()
-
-    val multipleImagesDocument = fetcher.fromString(multipleImagesHtml)
-    val multipleImagesData = parser.parse(multipleImagesDocument)
-
-    println("Title: ${multipleImagesData.title}")
-    println("Images: ${multipleImagesData.images.size}")
-    multipleImagesData.images.forEachIndexed { index, image ->
-        println("Image ${index + 1}: ${image.url}")
-        println("  Width: ${image.width}")
-        println("  Height: ${image.height}")
-    }
-
-    // Example 4: Working with article metadata
-    println("\nExample 4: Working with article metadata")
-    val articleHtml = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Article Example</title>
-            <meta property="og:title" content="Breaking News" />
-            <meta property="og:type" content="article" />
-            <meta property="og:url" content="https://example.com/news/breaking" />
-            <meta property="og:image" content="https://example.com/news.jpg" />
-            <meta property="og:description" content="Latest breaking news" />
-            <meta property="og:article:published_time" content="2023-01-01T00:00:00Z" />
-            <meta property="og:article:modified_time" content="2023-01-02T12:00:00Z" />
-            <meta property="og:article:section" content="News" />
-            <meta property="og:article:author" content="John Doe" />
-            <meta property="og:article:tag" content="breaking" />
-            <meta property="og:article:tag" content="news" />
-        </head>
-        <body>
-            <h1>Breaking News</h1>
-        </body>
-        </html>
-    """.trimIndent()
-
-    val articleDocument = fetcher.fromString(articleHtml)
-    val articleData = parser.parse(articleDocument)
-
-    println("Title: ${articleData.title}")
-    println("Type: ${articleData.type}")
-
-    val article = articleData.article
-    if (article != null) {
-        println("Published Time: ${article.publishedTime}")
-        println("Modified Time: ${article.modifiedTime}")
-        println("Section: ${article.section}")
-        println("Authors: ${article.authors.joinToString(", ")}")
-        println("Tags: ${article.tags.joinToString(", ")}")
-    }
 }
