@@ -1,13 +1,11 @@
-package nl.lengrand.opengraphkt.examples
+package nl.lengrand.opengraphkt
 
-import nl.lengrand.opengraphkt.DocumentFetcher
-import nl.lengrand.opengraphkt.OpenGraphParser
+import java.io.File
 
 /**
  * Example demonstrating how to use the OpenGraphParser to extract Open Graph data from HTML.
  */
 fun main() {
-    // Create instances of the parser and document fetcher
     val parser = OpenGraphParser()
     val fetcher = DocumentFetcher()
 
@@ -16,13 +14,13 @@ fun main() {
     try {
         val document = fetcher.fromUrl("https://www.imdb.com/title/tt0068646/")
         val openGraphData = parser.parse(document)
-        
+
         println("Title: ${openGraphData.title}")
         println("Type: ${openGraphData.type}")
         println("URL: ${openGraphData.url}")
         println("Description: ${openGraphData.description}")
         println("Site Name: ${openGraphData.siteName}")
-        
+
         println("Images: ${openGraphData.images.size}")
         openGraphData.images.forEachIndexed { index, image ->
             println("Image ${index + 1}: ${image.url}")
@@ -30,12 +28,57 @@ fun main() {
             println("  Height: ${image.height}")
             println("  Alt: ${image.alt}")
         }
-        
+
         println("Is valid: ${openGraphData.isValid()}")
     } catch (e: Exception) {
         println("Error parsing URL: ${e.message}")
     }
-    
+
+    // Example 1.5: Parse Open Graph data from a file
+    println("\nExample 1.5: Parsing from File")
+    try {
+        // This is just an example. In a real application, you would use an actual HTML file.
+        val tempFile = File.createTempFile("example", ".html")
+        tempFile.deleteOnExit() // Clean up after ourselves
+
+        // Write some sample HTML to the file
+        val sampleHtml = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>File Example</title>
+                <meta property="og:title" content="File Example Title" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://example.com/file-example" />
+                <meta property="og:image" content="https://example.com/file-image.jpg" />
+                <meta property="og:description" content="An example of parsing from a file" />
+            </head>
+            <body>
+                <h1>File Example</h1>
+            </body>
+            </html>
+        """.trimIndent()
+        tempFile.writeText(sampleHtml)
+
+        // Parse the file
+        val document = fetcher.fromFile(tempFile)
+        val openGraphData = parser.parse(document)
+
+        println("Title: ${openGraphData.title}")
+        println("Type: ${openGraphData.type}")
+        println("URL: ${openGraphData.url}")
+        println("Description: ${openGraphData.description}")
+
+        println("Images: ${openGraphData.images.size}")
+        openGraphData.images.forEachIndexed { index, image ->
+            println("Image ${index + 1}: ${image.url}")
+        }
+
+        println("Is valid: ${openGraphData.isValid()}")
+    } catch (e: Exception) {
+        println("Error parsing file: ${e.message}")
+    }
+
     // Example 2: Parse Open Graph data from an HTML string
     println("\nExample 2: Parsing from HTML string")
     val html = """
@@ -57,25 +100,25 @@ fun main() {
         </body>
         </html>
     """.trimIndent()
-    
+
     val document = fetcher.fromString(html)
     val openGraphData = parser.parse(document)
-    
+
     println("Title: ${openGraphData.title}")
     println("Type: ${openGraphData.type}")
     println("URL: ${openGraphData.url}")
     println("Description: ${openGraphData.description}")
     println("Site Name: ${openGraphData.siteName}")
-    
+
     println("Images: ${openGraphData.images.size}")
     openGraphData.images.forEachIndexed { index, image ->
         println("Image ${index + 1}: ${image.url}")
         println("  Width: ${image.width}")
         println("  Height: ${image.height}")
     }
-    
+
     println("Is valid: ${openGraphData.isValid()}")
-    
+
     // Example 3: Working with multiple images
     println("\nExample 3: Working with multiple images")
     val multipleImagesHtml = """
@@ -102,10 +145,10 @@ fun main() {
         </body>
         </html>
     """.trimIndent()
-    
+
     val multipleImagesDocument = fetcher.fromString(multipleImagesHtml)
     val multipleImagesData = parser.parse(multipleImagesDocument)
-    
+
     println("Title: ${multipleImagesData.title}")
     println("Images: ${multipleImagesData.images.size}")
     multipleImagesData.images.forEachIndexed { index, image ->
@@ -113,7 +156,7 @@ fun main() {
         println("  Width: ${image.width}")
         println("  Height: ${image.height}")
     }
-    
+
     // Example 4: Working with article metadata
     println("\nExample 4: Working with article metadata")
     val articleHtml = """
@@ -138,13 +181,13 @@ fun main() {
         </body>
         </html>
     """.trimIndent()
-    
+
     val articleDocument = fetcher.fromString(articleHtml)
     val articleData = parser.parse(articleDocument)
-    
+
     println("Title: ${articleData.title}")
     println("Type: ${articleData.type}")
-    
+
     val article = articleData.article
     if (article != null) {
         println("Published Time: ${article.publishedTime}")

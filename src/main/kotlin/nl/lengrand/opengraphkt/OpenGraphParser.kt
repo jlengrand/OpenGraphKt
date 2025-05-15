@@ -19,6 +19,7 @@ data class OpenGraphData(
     val type: String?,
     val url: String?,
     val description: String?,
+
     val siteName: String?,
     val determiner: String?,
     val locale: String?,

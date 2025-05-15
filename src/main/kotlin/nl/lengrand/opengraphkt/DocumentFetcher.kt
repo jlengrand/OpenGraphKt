@@ -16,7 +16,13 @@ class DocumentFetcher {
         return Jsoup.parse(html)
     }
 
-    fun fromFile() : Document {
-        TODO()
+    /**
+     * Parses HTML from a file and returns a JSoup Document
+     * @param file The file to parse
+     * @param charsetName The charset to use for parsing (default is UTF-8)
+     * @return A JSoup Document representing the parsed HTML
+     */
+    fun fromFile(file: java.io.File, charsetName: String = "UTF-8") : Document {
+        return Jsoup.parse(file, charsetName)
     }
 }
