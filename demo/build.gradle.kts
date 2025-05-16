@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.1.21"
     application
 }
 
@@ -11,7 +11,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jsoup:jsoup:1.20.1")
     testImplementation(kotlin("test"))
 }
 
@@ -36,5 +35,5 @@ kotlin {
 }
 
 application {
-    mainClass = "nl.lengrand.opengraphkt.MainKt"
+    mainClass = "fr.lengrand.opengraphkt.MainKt"
 }

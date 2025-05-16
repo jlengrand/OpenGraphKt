@@ -1,4 +1,4 @@
-package nl.lengrand.opengraphkt
+package fr.lengrand.opengraphkt
 
 import java.io.File
 

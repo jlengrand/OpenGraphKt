@@ -1,7 +1,8 @@
-package nl.lengrand.opengraphkt
+package fr.lengrand.opengraphkt
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.File
 
 /**
  * DocumentFetcher's job is to take any type of input and transform it into a JSoup document for the Parser to then do its job
@@ -22,7 +23,7 @@ class DocumentFetcher {
      * @param charsetName The charset to use for parsing (default is UTF-8)
      * @return A JSoup Document representing the parsed HTML
      */
-    fun fromFile(file: java.io.File, charsetName: String = "UTF-8") : Document {
+    fun fromFile(file: File, charsetName: String = "UTF-8") : Document {
         return Jsoup.parse(file, charsetName)
     }
 }
