@@ -1,7 +1,10 @@
 package fr.lengrand.opengraphkt
 
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import java.io.File
+import java.net.URL
 
 data class OpenGraphTag(
     val property: String,
@@ -147,6 +150,40 @@ class OpenGraphParser {
         val openGraphTags = extractOpenGraphTags(tags)
 
         return buildOpenGraphData(openGraphTags)
+    }
+
+    /**
+     * Extracts all Open Graph tags from a URL and returns a structured OpenGraphData object.
+     *
+     * @param url The URL to be parsed for Open Graph information.
+     * @return An OpenGraphData object containing all extracted Open Graph data.
+     */
+    fun parse(url: URL) : OpenGraphData {
+        val doc = Jsoup.connect(url.toString()).get()
+        return parse(doc)
+    }
+
+    /**
+     * Extracts all Open Graph tags from a raw HTML String and returns a structured OpenGraphData object.
+     *
+     * @param html The raw HTML String to be parsed for Open Graph information.
+     * @return An OpenGraphData object containing all extracted Open Graph data.
+     */
+    fun parse(html: String) : OpenGraphData {
+        val doc = Jsoup.parse(html)
+        return parse(doc)
+    }
+
+    /**
+     * Extracts all Open Graph tags from a raw HTML String and returns a structured OpenGraphData object.
+     *
+     * @param file The file to parse
+     * @param charset The charset to use for parsing (default is UTF-8)
+     * @return An OpenGraphData object containing all extracted Open Graph data.
+     */
+    fun parse(file: File, charset: String = "UTF-8") : OpenGraphData {
+        val doc = Jsoup.parse(file, charset)
+        return parse(doc)
     }
 
     /**

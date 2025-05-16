@@ -1,6 +1,8 @@
 package fr.lengrand.opengraphkt
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -8,7 +10,6 @@ import kotlin.test.assertTrue
 class OpenGraphParserTest {
 
     private val parser = OpenGraphParser()
-    private val fetcher = DocumentFetcher()
 
     // Sample HTML with all required OpenGraph tags and some structured properties
     private val completeHtml = """
@@ -139,14 +140,13 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with complete OpenGraph tags`() {
-        val document = fetcher.fromString(completeHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(completeHtml)
 
         // Verify that all required properties are extracted correctly
         assertEquals("The Rock", openGraphData.title)
         assertEquals("video.movie", openGraphData.type)
         assertEquals("https://example.com/the-rock", openGraphData.url)
-        
+
         // Verify that the OpenGraphData object is valid
         assertTrue(openGraphData.isValid())
 
@@ -184,96 +184,116 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with article-specific tags`() {
-        val document = fetcher.fromString(articleHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(articleHtml)
 
         // Verify basic properties
         assertEquals("Breaking News", openGraphData.title)
         assertEquals("article", openGraphData.type)
         assertEquals("https://example.com/news/breaking", openGraphData.url)
         assertEquals("Latest breaking news", openGraphData.description)
-        
+
         // Verify article-specific properties
         assertNotNull(openGraphData.article)
-        assertEquals("2023-01-01T00:00:00Z", openGraphData.article?.publishedTime)
-        assertEquals("2023-01-02T12:00:00Z", openGraphData.article?.modifiedTime)
-        assertEquals("News", openGraphData.article?.section)
-        assertEquals(2, openGraphData.article?.authors?.size)
-        assertTrue(openGraphData.article?.authors?.contains("John Doe") ?: false)
-        assertTrue(openGraphData.article?.authors?.contains("Jane Smith") ?: false)
-        assertEquals(2, openGraphData.article?.tags?.size)
-        assertTrue(openGraphData.article?.tags?.contains("breaking") ?: false)
-        assertTrue(openGraphData.article?.tags?.contains("news") ?: false)
+        assertEquals("2023-01-01T00:00:00Z", openGraphData.article.publishedTime)
+        assertEquals("2023-01-02T12:00:00Z", openGraphData.article.modifiedTime)
+        assertEquals("News", openGraphData.article.section)
+        assertEquals(2, openGraphData.article.authors.size)
+        assertTrue(openGraphData.article.authors.contains("John Doe"))
+        assertTrue(openGraphData.article.authors.contains("Jane Smith"))
+        assertEquals(2, openGraphData.article.tags.size)
+        assertTrue(openGraphData.article.tags.contains("breaking"))
+        assertTrue(openGraphData.article.tags.contains("news"))
     }
 
     @Test
     fun `test parse with profile-specific tags`() {
-        val document = fetcher.fromString(profileHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(profileHtml)
 
         // Verify basic properties
         assertEquals("John Doe", openGraphData.title)
         assertEquals("profile", openGraphData.type)
         assertEquals("https://example.com/profile/johndoe", openGraphData.url)
         assertEquals("John Doe's profile", openGraphData.description)
-        
+
         // Verify profile-specific properties
         assertNotNull(openGraphData.profile)
-        assertEquals("John", openGraphData.profile?.firstName)
-        assertEquals("Doe", openGraphData.profile?.lastName)
-        assertEquals("johndoe", openGraphData.profile?.username)
-        assertEquals("male", openGraphData.profile?.gender)
+        assertEquals("John", openGraphData.profile.firstName)
+        assertEquals("Doe", openGraphData.profile.lastName)
+        assertEquals("johndoe", openGraphData.profile.username)
+        assertEquals("male", openGraphData.profile.gender)
     }
 
     @Test
     fun `test parse with book-specific tags`() {
-        val document = fetcher.fromString(bookHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(bookHtml)
 
         // Verify basic properties
         assertEquals("The Great Novel", openGraphData.title)
         assertEquals("book", openGraphData.type)
         assertEquals("https://example.com/books/great-novel", openGraphData.url)
         assertEquals("A great novel", openGraphData.description)
-        
+
         // Verify book-specific properties
         assertNotNull(openGraphData.book)
-        assertEquals(1, openGraphData.book?.authors?.size)
-        assertEquals("Famous Author", openGraphData.book?.authors?.get(0))
-        assertEquals("1234567890123", openGraphData.book?.isbn)
-        assertEquals("2023-01-01", openGraphData.book?.releaseDate)
-        assertEquals(2, openGraphData.book?.tags?.size)
-        assertTrue(openGraphData.book?.tags?.contains("fiction") ?: false)
-        assertTrue(openGraphData.book?.tags?.contains("novel") ?: false)
+        assertEquals(1, openGraphData.book.authors.size)
+        assertEquals("Famous Author", openGraphData.book.authors.get(0))
+        assertEquals("1234567890123", openGraphData.book.isbn)
+        assertEquals("2023-01-01", openGraphData.book.releaseDate)
+        assertEquals(2, openGraphData.book.tags.size)
+        assertTrue(openGraphData.book.tags.contains("fiction"))
+        assertTrue(openGraphData.book.tags.contains("novel"))
     }
 
     @Test
     fun `test parse with multiple images`() {
-        val document = fetcher.fromString(multipleImagesHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(multipleImagesHtml)
 
         // Verify basic properties
         assertEquals("Photo Gallery", openGraphData.title)
         assertEquals("website", openGraphData.type)
         assertEquals("https://example.com/gallery", openGraphData.url)
         assertEquals("A gallery of images", openGraphData.description)
-        
+
         // Verify multiple images
         assertEquals(3, openGraphData.images.size)
-        
+
         // First image
         assertEquals("https://example.com/image1.jpg", openGraphData.images[0].url)
         assertEquals(800, openGraphData.images[0].width)
         assertEquals(600, openGraphData.images[0].height)
-        
+
         // Second image
         assertEquals("https://example.com/image2.jpg", openGraphData.images[1].url)
         assertEquals(1024, openGraphData.images[1].width)
         assertEquals(768, openGraphData.images[1].height)
-        
+
         // Third image
         assertEquals("https://example.com/image3.jpg", openGraphData.images[2].url)
         assertEquals(1200, openGraphData.images[2].width)
         assertEquals(900, openGraphData.images[2].height)
+    }
+
+    @Test
+    fun `test parse with File`(@TempDir tempDir: File) {
+        // Create a temporary HTML file
+        val htmlFile = File(tempDir, "test.html")
+        htmlFile.writeText(articleHtml)
+
+        val openGraphData = parser.parse(htmlFile)
+
+        // Verify basic properties
+        assertEquals("Breaking News", openGraphData.title)
+        assertEquals("article", openGraphData.type)
+        assertEquals("https://example.com/news/breaking", openGraphData.url)
+        assertEquals("Latest breaking news", openGraphData.description)
+
+        // Verify article-specific properties
+        assertNotNull(openGraphData.article)
+        assertEquals("2023-01-01T00:00:00Z", openGraphData.article.publishedTime)
+        assertEquals("2023-01-02T12:00:00Z", openGraphData.article.modifiedTime)
+        assertEquals("News", openGraphData.article.section)
+        assertEquals(2, openGraphData.article.authors.size)
+        assertTrue(openGraphData.article.authors.contains("John Doe"))
+        assertTrue(openGraphData.article.authors.contains("Jane Smith"))
     }
 }
