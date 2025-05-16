@@ -8,7 +8,6 @@ import kotlin.test.assertTrue
 class OpenGraphParserTest {
 
     private val parser = OpenGraphParser()
-    private val fetcher = DocumentFetcher()
 
     // Sample HTML with all required OpenGraph tags and some structured properties
     private val completeHtml = """
@@ -139,8 +138,7 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with complete OpenGraph tags`() {
-        val document = fetcher.fromString(completeHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(completeHtml)
 
         // Verify that all required properties are extracted correctly
         assertEquals("The Rock", openGraphData.title)
@@ -184,8 +182,7 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with article-specific tags`() {
-        val document = fetcher.fromString(articleHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(articleHtml)
 
         // Verify basic properties
         assertEquals("Breaking News", openGraphData.title)
@@ -208,8 +205,7 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with profile-specific tags`() {
-        val document = fetcher.fromString(profileHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(profileHtml)
 
         // Verify basic properties
         assertEquals("John Doe", openGraphData.title)
@@ -227,8 +223,7 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with book-specific tags`() {
-        val document = fetcher.fromString(bookHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(bookHtml)
 
         // Verify basic properties
         assertEquals("The Great Novel", openGraphData.title)
@@ -249,8 +244,7 @@ class OpenGraphParserTest {
 
     @Test
     fun `test parse with multiple images`() {
-        val document = fetcher.fromString(multipleImagesHtml)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(multipleImagesHtml)
 
         // Verify basic properties
         assertEquals("Photo Gallery", openGraphData.title)

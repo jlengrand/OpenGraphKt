@@ -1,5 +1,8 @@
 # OpenGraphKt
 
+![Maven Central Version](https://img.shields.io/maven-central/v/fr.lengrand/opengraphkt)
+
+
 [OpenGraphKt](https://github.com/jlengrand/OpenGraphKt) is a minimalist Kotlin library to work with the [Open Graph tags](https://ogp.me/) protocol. 
 OpenGraphKt is a tiny wrapper on top of JSoup. 
 

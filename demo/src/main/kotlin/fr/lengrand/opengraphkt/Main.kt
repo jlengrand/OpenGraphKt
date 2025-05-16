@@ -1,19 +1,18 @@
 package fr.lengrand.opengraphkt
 
 import java.io.File
+import java.net.URI
 
 /**
  * Example demonstrating how to use the OpenGraphParser to extract Open Graph data from HTML.
  */
 fun main() {
     val parser = OpenGraphParser()
-    val fetcher = DocumentFetcher()
 
     // Example 1: Parse Open Graph data from a URL
     println("Example 1: Parsing from URL")
     try {
-        val document = fetcher.fromUrl("https://www.imdb.com/title/tt0068646/")
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(URI("https://www.imdb.com/title/tt0068646/").toURL())
 
         println("Title: ${openGraphData.title}")
         println("Is valid: ${openGraphData.isValid()}")
@@ -28,8 +27,7 @@ fun main() {
         val resourceFile = File(resourceUrl.toURI())
 
         // Parse the file
-        val document = fetcher.fromFile(resourceFile)
-        val openGraphData = parser.parse(document)
+        val openGraphData = parser.parse(resourceFile)
 
         println("Title: ${openGraphData.title}")
         println("Is valid: ${openGraphData.isValid()}")
@@ -59,8 +57,7 @@ fun main() {
         </html>
     """.trimIndent()
 
-    val document = fetcher.fromString(html)
-    val openGraphData = parser.parse(document)
+    val openGraphData = parser.parse(html)
 
     println("Title: ${openGraphData.title}")
     println("Is valid: ${openGraphData.isValid()}")
