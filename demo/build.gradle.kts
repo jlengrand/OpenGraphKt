@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     kotlin("jvm") version "2.1.21"
     application
@@ -11,6 +13,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jsoup:jsoup:1.20.1")
+    implementation(project(":opengraphkt"))
     testImplementation(kotlin("test"))
 }
 
