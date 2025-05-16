@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.implementation
-
 plugins {
     kotlin("jvm")
     application
@@ -13,7 +11,7 @@ repositories {
 
 dependencies {
     implementation("org.jsoup:jsoup:1.20.1")
-    implementation(project(":opengraphkt"))
+    implementation("fr.lengrand:opengraphkt:0.0.1")
     testImplementation(kotlin("test"))
 }
 
