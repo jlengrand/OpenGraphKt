@@ -1,5 +1,6 @@
 package fr.lengrand.opengraphkt
 
+import org.jsoup.Jsoup
 import java.io.File
 import java.net.URI
 
@@ -36,7 +37,7 @@ fun main() {
     }
 
     // Example 3: Parse Open Graph data from an HTML string
-    println("\nExample 2: Parsing from HTML string")
+    println("\nExample 3: Parsing from HTML string")
     val html = """
         <!DOCTYPE html>
         <html>
@@ -61,4 +62,13 @@ fun main() {
 
     println("Title: ${openGraphData.title}")
     println("Is valid: ${openGraphData.isValid()}")
+
+    // Example 4: Parse Open Graph data from a Jsoup Document
+    println("\nExample 4: Parsing from JSoup Document")
+
+    val doc = Jsoup.parse(html)
+    val openGraphDataDoc = parser.parse(doc)
+
+    println("Title: ${openGraphDataDoc.title}")
+    println("Is valid: ${openGraphDataDoc.isValid()}")
 }
