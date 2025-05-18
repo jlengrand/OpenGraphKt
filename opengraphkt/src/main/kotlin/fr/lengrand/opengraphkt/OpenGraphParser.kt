@@ -36,7 +36,17 @@ data class OpenGraphData(
     // Optional type-specific metadata
     val article: OpenGraphArticle?,
     val profile: OpenGraphProfile?,
-    val book: OpenGraphBook?
+    val book: OpenGraphBook?,
+
+    // Music types
+    val musicSong: OpenGraphMusicSong?,
+    val musicAlbum: OpenGraphMusicAlbum?,
+    val musicPlaylist: OpenGraphMusicPlaylist?,
+    val musicRadioStation: OpenGraphMusicRadioStation?,
+
+    // Video types
+    val videoMovie: OpenGraphVideoMovie?,
+    val videoEpisode: OpenGraphVideoEpisode?
 ) {
     /**
      * Checks if this Open Graph data contains the minimum required properties.
@@ -63,9 +73,6 @@ data class OpenGraphData(
     }
 }
 
-/**
- * Represents an Open Graph image.
- */
 data class OpenGraphImage(
     val url: String?,
     val secureUrl: String?,
@@ -75,9 +82,6 @@ data class OpenGraphImage(
     val alt: String?
 )
 
-/**
- * Represents an Open Graph video.
- */
 data class OpenGraphVideo(
     val url: String?,
     val secureUrl: String?,
@@ -87,9 +91,6 @@ data class OpenGraphVideo(
     val duration: Int?
 )
 
-/**
- * Represents an Open Graph audio.
- */
 data class OpenGraphAudio(
     val url: String?,
     val secureUrl: String?,
@@ -97,7 +98,8 @@ data class OpenGraphAudio(
 )
 
 /**
- * Represents Open Graph article metadata.
+ * * video.tv_show - same as video.movie
+ * * video.other - same as video.movie
  */
 data class OpenGraphArticle(
     val publishedTime: String?,
@@ -108,9 +110,6 @@ data class OpenGraphArticle(
     val tags: List<String>
 )
 
-/**
- * Represents Open Graph profile metadata.
- */
 data class OpenGraphProfile(
     val firstName: String?,
     val lastName: String?,
@@ -118,14 +117,53 @@ data class OpenGraphProfile(
     val gender: String?
 )
 
-/**
- * Represents Open Graph book metadata.
- */
 data class OpenGraphBook(
     val authors: List<String>,
     val isbn: String?,
     val releaseDate: String?,
     val tags: List<String>
+)
+
+data class OpenGraphMusicSong(
+    val duration: Int?,
+    val album: String?,
+    val albumDisc: Int?,
+    val albumTrack: Int?,
+    val musician: List<String>
+)
+
+data class OpenGraphMusicAlbum(
+    val songs: List<String>,
+    val musician: List<String>,
+    val releaseDate: String?
+)
+
+data class OpenGraphMusicPlaylist(
+    val songs: List<String>,
+    val creator: String?
+)
+
+data class OpenGraphMusicRadioStation(
+    val creator: String?
+)
+
+data class OpenGraphVideoMovie(
+    val actors: List<String>,
+    val director: List<String>,
+    val writer: List<String>,
+    val duration: Int?,
+    val releaseDate: String?,
+    val tags: List<String>
+)
+
+data class OpenGraphVideoEpisode(
+    val actors: List<String>,
+    val director: List<String>,
+    val writer: List<String>,
+    val duration: Int?,
+    val releaseDate: String?,
+    val tags: List<String>,
+    val series: String?
 )
 
 /**
@@ -243,6 +281,16 @@ class OpenGraphParser {
         // Build book-specific properties if the type is "book"
         val book = if (type == "book") buildBook(groupedTags) else null
 
+        // Build music-specific properties based on type
+        val musicSong = if (type == "music.song") buildMusicSong(groupedTags) else null
+        val musicAlbum = if (type == "music.album") buildMusicAlbum(groupedTags) else null
+        val musicPlaylist = if (type == "music.playlist") buildMusicPlaylist(groupedTags) else null
+        val musicRadioStation = if (type == "music.radio_station") buildMusicRadioStation(groupedTags) else null
+
+        // Build video-specific properties based on type
+        val videoMovie = if (type == "video.movie" || type == "video.tv_show" || type == "video.other") buildVideoMovie(groupedTags) else null
+        val videoEpisode = if (type == "video.episode") buildVideoEpisode(groupedTags) else null
+
         return OpenGraphData(
             tags = tags,
             title = title,
@@ -258,7 +306,13 @@ class OpenGraphParser {
             audios = audios,
             article = article,
             profile = profile,
-            book = book
+            book = book,
+            musicSong = musicSong,
+            musicAlbum = musicAlbum,
+            musicPlaylist = musicPlaylist,
+            musicRadioStation = musicRadioStation,
+            videoMovie = videoMovie,
+            videoEpisode = videoEpisode
         )
     }
 
@@ -501,6 +555,162 @@ class OpenGraphParser {
             isbn = isbn,
             releaseDate = releaseDate,
             tags = tags
+        )
+    }
+
+    /**
+     * Builds an OpenGraphMusicSong object from music.song-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphMusicSong object, or null if no music.song tags are found
+     */
+    private fun buildMusicSong(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicSong? {
+        val musicTags = groupedTags.getOrDefault("music", emptyList())
+
+        if (musicTags.isEmpty()) {
+            return null
+        }
+
+        val duration = musicTags.firstOrNull { it.property == "music:duration" }?.content?.toIntOrNull()
+        val album = musicTags.firstOrNull { it.property == "music:album" }?.content
+        val albumDisc = musicTags.firstOrNull { it.property == "music:album:disc" }?.content?.toIntOrNull()
+        val albumTrack = musicTags.firstOrNull { it.property == "music:album:track" }?.content?.toIntOrNull()
+        val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
+
+        return OpenGraphMusicSong(
+            duration = duration,
+            album = album,
+            albumDisc = albumDisc,
+            albumTrack = albumTrack,
+            musician = musicians
+        )
+    }
+
+    /**
+     * Builds an OpenGraphMusicAlbum object from music.album-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphMusicAlbum object, or null if no music.album tags are found
+     */
+    private fun buildMusicAlbum(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicAlbum? {
+        val musicTags = groupedTags.getOrDefault("music", emptyList())
+
+        if (musicTags.isEmpty()) {
+            return null
+        }
+
+        val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
+        val releaseDate = musicTags.firstOrNull { it.property == "music:release_date" }?.content
+
+        return OpenGraphMusicAlbum(
+            songs = songs,
+            musician = musicians,
+            releaseDate = releaseDate
+        )
+    }
+
+    /**
+     * Builds an OpenGraphMusicPlaylist object from music.playlist-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphMusicPlaylist object, or null if no music.playlist tags are found
+     */
+    private fun buildMusicPlaylist(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicPlaylist? {
+        val musicTags = groupedTags.getOrDefault("music", emptyList())
+
+        if (musicTags.isEmpty()) {
+            return null
+        }
+
+        val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
+
+        return OpenGraphMusicPlaylist(
+            songs = songs,
+            creator = creator
+        )
+    }
+
+    /**
+     * Builds an OpenGraphMusicRadioStation object from music.radio_station-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphMusicRadioStation object, or null if no music.radio_station tags are found
+     */
+    private fun buildMusicRadioStation(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicRadioStation? {
+        val musicTags = groupedTags.getOrDefault("music", emptyList())
+
+        if (musicTags.isEmpty()) {
+            return null
+        }
+
+        val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
+
+        return OpenGraphMusicRadioStation(
+            creator = creator
+        )
+    }
+
+    /**
+     * Builds an OpenGraphVideoMovie object from video.movie-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphVideoMovie object, or null if no video.movie tags are found
+     */
+    private fun buildVideoMovie(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphVideoMovie? {
+        val videoTags = groupedTags.getOrDefault("video", emptyList())
+
+        if (videoTags.isEmpty()) {
+            return null
+        }
+
+        val actors = videoTags.filter { it.property == "video:actor" }.map { it.content }
+        val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
+        val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
+        val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
+        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
+
+        return OpenGraphVideoMovie(
+            actors = actors,
+            director = directors,
+            writer = writers,
+            duration = duration,
+            releaseDate = releaseDate,
+            tags = tags
+        )
+    }
+
+    /**
+     * Builds an OpenGraphVideoEpisode object from video.episode-related tags.
+     * 
+     * @param groupedTags The map of grouped OpenGraphTag objects
+     * @return An OpenGraphVideoEpisode object, or null if no video.episode tags are found
+     */
+    private fun buildVideoEpisode(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphVideoEpisode? {
+        val videoTags = groupedTags.getOrDefault("video", emptyList())
+
+        if (videoTags.isEmpty()) {
+            return null
+        }
+
+        val actors = videoTags.filter { it.property == "video:actor" }.map { it.content }
+        val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
+        val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
+        val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
+        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
+        val series = videoTags.firstOrNull { it.property == "video:series" }?.content
+
+        return OpenGraphVideoEpisode(
+            actors = actors,
+            director = directors,
+            writer = writers,
+            duration = duration,
+            releaseDate = releaseDate,
+            tags = tags,
+            series = series
         )
     }
 }
