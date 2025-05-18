@@ -62,15 +62,6 @@ data class OpenGraphData(
     fun isValid(): Boolean {
         return title != null && type != null && images.isNotEmpty() && url != null
     }
-
-    /**
-     * Gets the first image URL, or null if no images are present.
-     *
-     * @return The URL of the first image, or null
-     */
-    fun getFirstImageUrl(): String? {
-        return images.firstOrNull()?.url
-    }
 }
 
 data class OpenGraphImage(
