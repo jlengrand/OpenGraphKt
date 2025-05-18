@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation("org.jsoup:jsoup:1.20.1")
-    implementation("fr.lengrand:opengraphkt:0.0.1")
+    implementation("fr.lengrand:opengraphkt:0.0.2")
     testImplementation(kotlin("test"))
 }
 
