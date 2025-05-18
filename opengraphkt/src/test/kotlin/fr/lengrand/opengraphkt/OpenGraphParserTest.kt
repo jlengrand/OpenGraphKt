@@ -393,30 +393,30 @@ class OpenGraphParserTest {
     fun `test getType method returns correct enum values`() {
         // Test video.movie type
         val videoMovieData = parser.parse(videoMovieHtml)
-        assertEquals(OpenGraphType.VIDEO_MOVIE, videoMovieData.getType())
+        assertEquals(Type.VIDEO_MOVIE, videoMovieData.getType())
 
         // Test article type
         val articleData = parser.parse(articleHtml)
-        assertEquals(OpenGraphType.ARTICLE, articleData.getType())
+        assertEquals(Type.ARTICLE, articleData.getType())
 
         // Test profile type
         val profileData = parser.parse(profileHtml)
-        assertEquals(OpenGraphType.PROFILE, profileData.getType())
+        assertEquals(Type.PROFILE, profileData.getType())
 
         // Test book type
         val bookData = parser.parse(bookHtml)
-        assertEquals(OpenGraphType.BOOK, bookData.getType())
+        assertEquals(Type.BOOK, bookData.getType())
 
         // Test website type (should return UNKNOWN as it's not in our enum)
         val websiteData = parser.parse(multipleImagesHtml)
-        assertEquals(OpenGraphType.WEBSITE, websiteData.getType())
+        assertEquals(Type.WEBSITE, websiteData.getType())
 
         // Test no type defaults to Website
         val noTypeData = parser.parse(noTypeHtml)
-        assertEquals(OpenGraphType.WEBSITE, noTypeData.getType())
+        assertEquals(Type.WEBSITE, noTypeData.getType())
 
         // Test unrecognized type is Unknown
         val unkwownData = parser.parse(unknownTypeHtml)
-        assertEquals(OpenGraphType.UNKNOWN, unkwownData.getType())
+        assertEquals(Type.UNKNOWN, unkwownData.getType())
     }
 }

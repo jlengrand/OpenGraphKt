@@ -7,212 +7,6 @@ import java.io.File
 import java.net.URL
 
 /**
- * Enum representing the different types of Open Graph objects.
- */
-enum class OpenGraphType {
-    ARTICLE,
-    PROFILE,
-    BOOK,
-    MUSIC_SONG,
-    MUSIC_ALBUM,
-    MUSIC_PLAYLIST,
-    MUSIC_RADIO_STATION,
-    VIDEO_MOVIE,
-    VIDEO_TV_SHOW,
-    VIDEO_OTHER,
-    VIDEO_EPISODE,
-    WEBSITE,
-    UNKNOWN;
-
-    companion object {
-        /**
-         * Converts a string type to the corresponding enum value.
-         *
-         * @param type The string representation of the type
-         * @return The corresponding OpenGraphType enum value, or UNKNOWN if not recognized
-         */
-        fun fromString(type: String?): OpenGraphType {
-            return when (type) {
-                "article" -> ARTICLE
-                "profile" -> PROFILE
-                "book" -> BOOK
-                "music.song" -> MUSIC_SONG
-                "music.album" -> MUSIC_ALBUM
-                "music.playlist" -> MUSIC_PLAYLIST
-                "music.radio_station" -> MUSIC_RADIO_STATION
-                "video.movie" -> VIDEO_MOVIE
-                "video.tv_show" -> VIDEO_TV_SHOW
-                "video.other" -> VIDEO_OTHER
-                "video.episode" -> VIDEO_EPISODE
-                "website" -> WEBSITE
-                null -> WEBSITE // No type tag defaults to Website
-                else -> UNKNOWN // Another type we are not aware of
-            }
-        }
-    }
-}
-
-data class OpenGraphTag(
-    val property: String,
-    val content: String,
-)
-
-/**
- * Represents structured Open Graph data extracted from HTML.
- */
-data class OpenGraphData(
-    val tags: List<OpenGraphTag>,
-
-    // Basic metadata
-    val title: String?,
-    val type: String?,
-    val url: String?,
-    val description: String?,
-
-    val siteName: String?,
-    val determiner: String?,
-    val locale: String?,
-    val localeAlternate: List<String>,
-
-    // Structured properties
-    val images: List<OpenGraphImage>,
-    val videos: List<OpenGraphVideo>,
-    val audios: List<OpenGraphAudio>,
-
-    // Optional type-specific metadata
-    val article: OpenGraphArticle?,
-    val profile: OpenGraphProfile?,
-    val book: OpenGraphBook?,
-
-    // Music types
-    val musicSong: OpenGraphMusicSong?,
-    val musicAlbum: OpenGraphMusicAlbum?,
-    val musicPlaylist: OpenGraphMusicPlaylist?,
-    val musicRadioStation: OpenGraphMusicRadioStation?,
-
-    // Video types
-    val videoMovie: OpenGraphVideoMovie?,
-    val videoEpisode: OpenGraphVideoEpisode?
-) {
-    /**
-     * Checks if this Open Graph data contains the minimum required properties.
-     *
-     * According to the Open Graph protocol, the minimum required properties are:
-     * - og:title
-     * - og:type
-     * - og:image
-     * - og:url
-     *
-     * @return true if all required properties are present, false otherwise
-     */
-    fun isValid(): Boolean {
-        return title != null && type != null && images.isNotEmpty() && url != null
-    }
-
-    /**
-     * Returns the type of this Open Graph data as an enum value.
-     *
-     * @return The OpenGraphType enum value corresponding to the type string, or UNKNOWN if the type is not recognized
-     */
-    fun getType(): OpenGraphType {
-        return OpenGraphType.fromString(type)
-    }
-}
-
-data class OpenGraphImage(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?,
-    val width: Int?,
-    val height: Int?,
-    val alt: String?
-)
-
-data class OpenGraphVideo(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?,
-    val width: Int?,
-    val height: Int?,
-    val duration: Int?
-)
-
-data class OpenGraphAudio(
-    val url: String?,
-    val secureUrl: String?,
-    val type: String?
-)
-
-/**
- * * video.tv_show - same as video.movie
- * * video.other - same as video.movie
- */
-data class OpenGraphArticle(
-    val publishedTime: String?,
-    val modifiedTime: String?,
-    val expirationTime: String?,
-    val section: String?,
-    val authors: List<String>,
-    val tags: List<String>
-)
-
-data class OpenGraphProfile(
-    val firstName: String?,
-    val lastName: String?,
-    val username: String?,
-    val gender: String?
-)
-
-data class OpenGraphBook(
-    val authors: List<String>,
-    val isbn: String?,
-    val releaseDate: String?,
-    val tags: List<String>
-)
-
-data class OpenGraphMusicSong(
-    val duration: Int?,
-    val album: String?,
-    val albumDisc: Int?,
-    val albumTrack: Int?,
-    val musician: List<String>
-)
-
-data class OpenGraphMusicAlbum(
-    val songs: List<String>,
-    val musician: List<String>,
-    val releaseDate: String?
-)
-
-data class OpenGraphMusicPlaylist(
-    val songs: List<String>,
-    val creator: String?
-)
-
-data class OpenGraphMusicRadioStation(
-    val creator: String?
-)
-
-data class OpenGraphVideoMovie(
-    val actors: List<String>,
-    val director: List<String>,
-    val writer: List<String>,
-    val duration: Int?,
-    val releaseDate: String?,
-    val tags: List<String>
-)
-
-data class OpenGraphVideoEpisode(
-    val actors: List<String>,
-    val director: List<String>,
-    val writer: List<String>,
-    val duration: Int?,
-    val releaseDate: String?,
-    val tags: List<String>,
-    val series: String?
-)
-
-/**
  * A comprehensive parser for Open Graph protocol tags.
  * 
  * The Open Graph protocol enables any web page to become a rich object in a social graph.
@@ -224,12 +18,12 @@ data class OpenGraphVideoEpisode(
 class OpenGraphParser {
 
     /**
-     * Extracts all Open Graph tags from a JSoup Document and returns a structured OpenGraphData object.
+     * Extracts all Open Graph tags from a JSoup Document and returns a structured Data object.
      * 
      * @param document The JSoup Document to parse
-     * @return An OpenGraphData object containing all extracted Open Graph data
+     * @return An Data object containing all extracted Open Graph data
      */
-    fun parse(document: Document): OpenGraphData {
+    fun parse(document: Document): Data {
         val tags = document.select("meta[property^=og:]")
         val openGraphTags = extractOpenGraphTags(tags)
 
@@ -237,62 +31,62 @@ class OpenGraphParser {
     }
 
     /**
-     * Extracts all Open Graph tags from a URL and returns a structured OpenGraphData object.
+     * Extracts all Open Graph tags from a URL and returns a structured Data object.
      *
      * @param url The URL to be parsed for Open Graph information.
-     * @return An OpenGraphData object containing all extracted Open Graph data.
+     * @return An Data object containing all extracted Open Graph data.
      */
-    fun parse(url: URL) : OpenGraphData {
+    fun parse(url: URL) : Data {
         val doc = Jsoup.connect(url.toString()).get()
         return parse(doc)
     }
 
     /**
-     * Extracts all Open Graph tags from a raw HTML String and returns a structured OpenGraphData object.
+     * Extracts all Open Graph tags from a raw HTML String and returns a structured Data object.
      *
      * @param html The raw HTML String to be parsed for Open Graph information.
-     * @return An OpenGraphData object containing all extracted Open Graph data.
+     * @return An Data object containing all extracted Open Graph data.
      */
-    fun parse(html: String) : OpenGraphData {
+    fun parse(html: String) : Data {
         val doc = Jsoup.parse(html)
         return parse(doc)
     }
 
     /**
-     * Extracts all Open Graph tags from a raw HTML String and returns a structured OpenGraphData object.
+     * Extracts all Open Graph tags from a raw HTML String and returns a structured Data object.
      *
      * @param file The file to parse
      * @param charset The charset to use for parsing (default is UTF-8)
-     * @return An OpenGraphData object containing all extracted Open Graph data.
+     * @return An Data object containing all extracted Open Graph data.
      */
-    fun parse(file: File, charset: String = "UTF-8") : OpenGraphData {
+    fun parse(file: File, charset: String = "UTF-8") : Data {
         val doc = Jsoup.parse(file, charset)
         return parse(doc)
     }
 
     /**
-     * Extracts Open Graph tags from JSoup Elements and converts them to OpenGraphTag objects.
+     * Extracts Open Graph tags from JSoup Elements and converts them to Tag objects.
      * 
      * @param elements The JSoup Elements containing Open Graph meta tags
-     * @return A list of OpenGraphTag objects
+     * @return A list of Tag objects
      */
-    private fun extractOpenGraphTags(elements: Elements): List<OpenGraphTag> {
+    private fun extractOpenGraphTags(elements: Elements): List<Tag> {
         return elements.map { element ->
             val fullProperty = element.attr("property")
             val property = fullProperty.substring(3) // Remove "og:" prefix
             val content = element.attr("content")
 
-            OpenGraphTag(property, content)
+            Tag(property, content)
         }
     }
 
     /**
-     * Builds an OpenGraphData object from a list of OpenGraphTag objects.
+     * Builds an Data object from a list of Tag objects.
      * 
-     * @param tags The list of OpenGraphTag objects
-     * @return An OpenGraphData object containing structured Open Graph data
+     * @param tags The list of Tag objects
+     * @return An Data object containing structured Open Graph data
      */
-    private fun buildOpenGraphData(tags: List<OpenGraphTag>): OpenGraphData {
+    private fun buildOpenGraphData(tags: List<Tag>): Data {
         // Group tags by their namespace (before the first colon)
         val groupedTags = tags.groupBy { tag ->
             if (tag.property.contains(":")) {
@@ -337,7 +131,7 @@ class OpenGraphParser {
         val videoMovie = if (type == "video.movie" || type == "video.tv_show" || type == "video.other") buildVideoMovie(groupedTags) else null
         val videoEpisode = if (type == "video.episode") buildVideoEpisode(groupedTags) else null
 
-        return OpenGraphData(
+        return Data(
             tags = tags,
             title = title,
             type = type,
@@ -365,32 +159,32 @@ class OpenGraphParser {
     /**
      * Gets the content of the first tag with the specified property.
      * 
-     * @param tags The list of OpenGraphTag objects
+     * @param tags The list of Tag objects
      * @param property The property to look for
      * @return The content of the first tag with the specified property, or null if not found
      */
-    private fun getFirstTagContent(tags: List<OpenGraphTag>, property: String): String? {
+    private fun getFirstTagContent(tags: List<Tag>, property: String): String? {
         return tags.firstOrNull { it.property == property }?.content
     }
 
     /**
      * Gets the content of all tags with the specified property.
      * 
-     * @param tags The list of OpenGraphTag objects
+     * @param tags The list of Tag objects
      * @param property The property to look for
      * @return A list of content values from all tags with the specified property
      */
-    private fun getTagsContent(tags: List<OpenGraphTag>, property: String): List<String> {
+    private fun getTagsContent(tags: List<Tag>, property: String): List<String> {
         return tags.filter { it.property == property }.map { it.content }
     }
 
     /**
-     * Builds a list of OpenGraphImage objects from image tags.
+     * Builds a list of Image objects from image tags.
      * 
-     * @param imageTags The list of image-related OpenGraphTag objects
-     * @return A list of OpenGraphImage objects
+     * @param imageTags The list of image-related Tag objects
+     * @return A list of Image objects
      */
-    private fun buildImages(imageTags: List<OpenGraphTag>): List<OpenGraphImage> {
+    private fun buildImages(imageTags: List<Tag>): List<Image> {
         val baseImageTags = imageTags.filter { 
             it.property == "image" || it.property == "image:url" 
         }
@@ -400,7 +194,7 @@ class OpenGraphParser {
             return emptyList()
         }
 
-        val images = mutableListOf<OpenGraphImage>()
+        val images = mutableListOf<Image>()
 
         // For each base image tag, create an image object and find its attributes
         baseImageTags.forEach { baseTag ->
@@ -419,7 +213,7 @@ class OpenGraphParser {
             val height = attributeTags.firstOrNull { it.property == "image:height" }?.content?.toIntOrNull()
             val alt = attributeTags.firstOrNull { it.property == "image:alt" }?.content
 
-            images.add(OpenGraphImage(
+            images.add(Image(
                 url = baseTag.content,
                 secureUrl = secureUrl,
                 type = type,
@@ -433,12 +227,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds a list of OpenGraphVideo objects from video tags.
+     * Builds a list of Video objects from video tags.
      * 
-     * @param videoTags The list of video-related OpenGraphTag objects
-     * @return A list of OpenGraphVideo objects
+     * @param videoTags The list of video-related Tag objects
+     * @return A list of Video objects
      */
-    private fun buildVideos(videoTags: List<OpenGraphTag>): List<OpenGraphVideo> {
+    private fun buildVideos(videoTags: List<Tag>): List<Video> {
         val baseVideoTags = videoTags.filter {
             it.property == "video" || it.property == "video:url" 
         }
@@ -448,7 +242,7 @@ class OpenGraphParser {
             return emptyList()
         }
 
-        val videos = mutableListOf<OpenGraphVideo>()
+        val videos = mutableListOf<Video>()
 
         // For each base video tag, create a video object and find its attributes
         baseVideoTags.forEach { baseTag ->
@@ -467,7 +261,7 @@ class OpenGraphParser {
             val height = attributeTags.firstOrNull { it.property == "video:height" }?.content?.toIntOrNull()
             val duration = attributeTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
 
-            videos.add(OpenGraphVideo(
+            videos.add(Video(
                 url = baseTag.content,
                 secureUrl = secureUrl,
                 type = type,
@@ -481,12 +275,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds a list of OpenGraphAudio objects from audio tags.
+     * Builds a list of Audio objects from audio tags.
      * 
-     * @param audioTags The list of audio-related OpenGraphTag objects
-     * @return A list of OpenGraphAudio objects
+     * @param audioTags The list of audio-related Tag objects
+     * @return A list of Audio objects
      */
-    private fun buildAudios(audioTags: List<OpenGraphTag>): List<OpenGraphAudio> {
+    private fun buildAudios(audioTags: List<Tag>): List<Audio> {
         val baseAudioTags = audioTags.filter {
             it.property == "audio" || it.property == "audio:url" 
         }
@@ -496,7 +290,7 @@ class OpenGraphParser {
             return emptyList()
         }
 
-        val audios = mutableListOf<OpenGraphAudio>()
+        val audios = mutableListOf<Audio>()
 
         // For each base audio tag, create an audio object and find its attributes
         baseAudioTags.forEach { baseTag ->
@@ -512,7 +306,7 @@ class OpenGraphParser {
             val secureUrl = attributeTags.firstOrNull { it.property == "audio:secure_url" }?.content
             val type = attributeTags.firstOrNull { it.property == "audio:type" }?.content
 
-            audios.add(OpenGraphAudio(
+            audios.add(Audio(
                 url = baseTag.content,
                 secureUrl = secureUrl,
                 type = type
@@ -523,12 +317,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphArticle object from article-related tags.
+     * Builds an Article object from article-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphArticle object, or null if no article tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An Article object, or null if no article tags are found
      */
-    private fun buildArticle(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphArticle? {
+    private fun buildArticle(groupedTags: Map<String, List<Tag>>): Article? {
         val articleTags = groupedTags.getOrDefault("article", emptyList())
 
         if (articleTags.isEmpty()) {
@@ -542,7 +336,7 @@ class OpenGraphParser {
         val authors = articleTags.filter { it.property == "article:author" }.map { it.content }
         val tags = articleTags.filter { it.property == "article:tag" }.map { it.content }
 
-        return OpenGraphArticle(
+        return Article(
             publishedTime = publishedTime,
             modifiedTime = modifiedTime,
             expirationTime = expirationTime,
@@ -553,12 +347,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphProfile object from profile-related tags.
+     * Builds an Profile object from profile-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphProfile object, or null if no profile tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An Profile object, or null if no profile tags are found
      */
-    private fun buildProfile(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphProfile? {
+    private fun buildProfile(groupedTags: Map<String, List<Tag>>): Profile? {
         val profileTags = groupedTags.getOrDefault("profile", emptyList())
 
         if (profileTags.isEmpty()) {
@@ -570,7 +364,7 @@ class OpenGraphParser {
         val username = profileTags.firstOrNull { it.property == "profile:username" }?.content
         val gender = profileTags.firstOrNull { it.property == "profile:gender" }?.content
 
-        return OpenGraphProfile(
+        return Profile(
             firstName = firstName,
             lastName = lastName,
             username = username,
@@ -579,12 +373,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphBook object from book-related tags.
+     * Builds an Book object from book-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphBook object, or null if no book tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An Book object, or null if no book tags are found
      */
-    private fun buildBook(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphBook? {
+    private fun buildBook(groupedTags: Map<String, List<Tag>>): Book? {
         val bookTags = groupedTags.getOrDefault("book", emptyList())
 
         if (bookTags.isEmpty()) {
@@ -596,7 +390,7 @@ class OpenGraphParser {
         val releaseDate = bookTags.firstOrNull { it.property == "book:release_date" }?.content
         val tags = bookTags.filter { it.property == "book:tag" }.map { it.content }
 
-        return OpenGraphBook(
+        return Book(
             authors = authors,
             isbn = isbn,
             releaseDate = releaseDate,
@@ -605,12 +399,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphMusicSong object from music.song-related tags.
+     * Builds an MusicSong object from music.song-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphMusicSong object, or null if no music.song tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An MusicSong object, or null if no music.song tags are found
      */
-    private fun buildMusicSong(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicSong? {
+    private fun buildMusicSong(groupedTags: Map<String, List<Tag>>): MusicSong? {
         val musicTags = groupedTags.getOrDefault("music", emptyList())
 
         if (musicTags.isEmpty()) {
@@ -623,7 +417,7 @@ class OpenGraphParser {
         val albumTrack = musicTags.firstOrNull { it.property == "music:album:track" }?.content?.toIntOrNull()
         val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
 
-        return OpenGraphMusicSong(
+        return MusicSong(
             duration = duration,
             album = album,
             albumDisc = albumDisc,
@@ -633,12 +427,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphMusicAlbum object from music.album-related tags.
+     * Builds an MusicAlbum object from music.album-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphMusicAlbum object, or null if no music.album tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An MusicAlbum object, or null if no music.album tags are found
      */
-    private fun buildMusicAlbum(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicAlbum? {
+    private fun buildMusicAlbum(groupedTags: Map<String, List<Tag>>): MusicAlbum? {
         val musicTags = groupedTags.getOrDefault("music", emptyList())
 
         if (musicTags.isEmpty()) {
@@ -649,7 +443,7 @@ class OpenGraphParser {
         val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
         val releaseDate = musicTags.firstOrNull { it.property == "music:release_date" }?.content
 
-        return OpenGraphMusicAlbum(
+        return MusicAlbum(
             songs = songs,
             musician = musicians,
             releaseDate = releaseDate
@@ -657,12 +451,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphMusicPlaylist object from music.playlist-related tags.
+     * Builds an MusicPlaylist object from music.playlist-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphMusicPlaylist object, or null if no music.playlist tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An MusicPlaylist object, or null if no music.playlist tags are found
      */
-    private fun buildMusicPlaylist(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicPlaylist? {
+    private fun buildMusicPlaylist(groupedTags: Map<String, List<Tag>>): MusicPlaylist? {
         val musicTags = groupedTags.getOrDefault("music", emptyList())
 
         if (musicTags.isEmpty()) {
@@ -672,19 +466,19 @@ class OpenGraphParser {
         val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
         val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
 
-        return OpenGraphMusicPlaylist(
+        return MusicPlaylist(
             songs = songs,
             creator = creator
         )
     }
 
     /**
-     * Builds an OpenGraphMusicRadioStation object from music.radio_station-related tags.
+     * Builds an MusicRadioStation object from music.radio_station-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphMusicRadioStation object, or null if no music.radio_station tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An MusicRadioStation object, or null if no music.radio_station tags are found
      */
-    private fun buildMusicRadioStation(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphMusicRadioStation? {
+    private fun buildMusicRadioStation(groupedTags: Map<String, List<Tag>>): MusicRadioStation? {
         val musicTags = groupedTags.getOrDefault("music", emptyList())
 
         if (musicTags.isEmpty()) {
@@ -693,18 +487,18 @@ class OpenGraphParser {
 
         val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
 
-        return OpenGraphMusicRadioStation(
+        return MusicRadioStation(
             creator = creator
         )
     }
 
     /**
-     * Builds an OpenGraphVideoMovie object from video.movie-related tags.
+     * Builds an VideoMovie object from video.movie-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphVideoMovie object, or null if no video.movie tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An VideoMovie object, or null if no video.movie tags are found
      */
-    private fun buildVideoMovie(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphVideoMovie? {
+    private fun buildVideoMovie(groupedTags: Map<String, List<Tag>>): VideoMovie? {
         val videoTags = groupedTags.getOrDefault("video", emptyList())
 
         if (videoTags.isEmpty()) {
@@ -718,7 +512,7 @@ class OpenGraphParser {
         val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
 
-        return OpenGraphVideoMovie(
+        return VideoMovie(
             actors = actors,
             director = directors,
             writer = writers,
@@ -729,12 +523,12 @@ class OpenGraphParser {
     }
 
     /**
-     * Builds an OpenGraphVideoEpisode object from video.episode-related tags.
+     * Builds an VideoEpisode object from video.episode-related tags.
      * 
-     * @param groupedTags The map of grouped OpenGraphTag objects
-     * @return An OpenGraphVideoEpisode object, or null if no video.episode tags are found
+     * @param groupedTags The map of grouped Tag objects
+     * @return An VideoEpisode object, or null if no video.episode tags are found
      */
-    private fun buildVideoEpisode(groupedTags: Map<String, List<OpenGraphTag>>): OpenGraphVideoEpisode? {
+    private fun buildVideoEpisode(groupedTags: Map<String, List<Tag>>): VideoEpisode? {
         val videoTags = groupedTags.getOrDefault("video", emptyList())
 
         if (videoTags.isEmpty()) {
@@ -749,7 +543,7 @@ class OpenGraphParser {
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
         val series = videoTags.firstOrNull { it.property == "video:series" }?.content
 
-        return OpenGraphVideoEpisode(
+        return VideoEpisode(
             actors = actors,
             director = directors,
             writer = writers,
