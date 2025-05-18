@@ -15,7 +15,7 @@ import java.net.URL
  * 
  * @see <a href="https://ogp.me/">Open Graph Protocol</a>
  */
-class OpenGraphParser {
+class Parser {
 
     /**
      * Extracts all Open Graph tags from a JSoup Document and returns a structured Data object.

@@ -7,9 +7,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class OpenGraphParserTest {
+class ParserTest {
 
-    private val parser = OpenGraphParser()
+    private val parser = Parser()
 
     // Sample HTML with all required OpenGraph tags and some structured properties
     private val completeHtml = """
