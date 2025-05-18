@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "fr.lengrand"
-version = "0.0.2-SNAPSHOT"
+version = "0.0.2"
 
 repositories {
     mavenCentral()
