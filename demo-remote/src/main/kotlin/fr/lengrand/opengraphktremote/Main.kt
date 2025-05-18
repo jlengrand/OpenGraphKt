@@ -1,13 +1,12 @@
 package fr.lengrand.opengraphktremote
 
-import fr.lengrand.opengraphkt.OpenGraphParser
-import org.jsoup.Jsoup
+import fr.lengrand.opengraphkt.Parser
 
 /**
  * This module is only here to verify that the latest Maven Central release can be imported and used as intended.
  */
 fun main() {
-    val parser = OpenGraphParser()
+    val parser = Parser()
 
     val html = """
         <!DOCTYPE html>
@@ -31,8 +30,7 @@ fun main() {
 
     println("Parsing from JSoup Document")
 
-    val doc = Jsoup.parse(html)
-    val openGraphDataDoc = parser.parse(doc)
+    val openGraphDataDoc = parser.parse(html)
 
     println("Title: ${openGraphDataDoc.title}")
     println("Is valid: ${openGraphDataDoc.isValid()}")
