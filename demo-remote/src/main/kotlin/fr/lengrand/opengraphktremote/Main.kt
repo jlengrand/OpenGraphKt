@@ -1,5 +1,6 @@
-package fr.lengrand.opengraphkt
+package fr.lengrand.opengraphktremote
 
+import fr.lengrand.opengraphkt.OpenGraphParser
 import org.jsoup.Jsoup
 
 /**

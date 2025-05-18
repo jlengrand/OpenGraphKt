@@ -8,7 +8,7 @@ import java.net.URI
  * Example demonstrating how to use the OpenGraphParser to extract Open Graph data from HTML.
  */
 fun main() {
-    val parser = OpenGraphParser()
+    val parser = Parser()
 
     // Example 1: Parse Open Graph data from a URL
     println("Example 1: Parsing from URL")

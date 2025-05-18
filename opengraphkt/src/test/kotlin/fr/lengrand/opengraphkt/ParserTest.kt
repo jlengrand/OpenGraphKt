@@ -7,9 +7,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class OpenGraphParserTest {
+class ParserTest {
 
-    private val parser = OpenGraphParser()
+    private val parser = Parser()
 
     // Sample HTML with all required OpenGraph tags and some structured properties
     private val completeHtml = """
@@ -180,6 +180,15 @@ class OpenGraphParserTest {
         assertEquals(2, openGraphData.localeAlternate.size)
         assertTrue(openGraphData.localeAlternate.contains("fr_FR"))
         assertTrue(openGraphData.localeAlternate.contains("es_ES"))
+
+        // Verify video.movie properties
+        assertNotNull(openGraphData.videoMovie)
+        assertEquals(0, openGraphData.videoMovie.actors.size)
+        assertEquals(0, openGraphData.videoMovie.director.size)
+        assertEquals(0, openGraphData.videoMovie.writer.size)
+        assertEquals(null, openGraphData.videoMovie.duration)
+        assertEquals(null, openGraphData.videoMovie.releaseDate)
+        assertEquals(0, openGraphData.videoMovie.tags.size)
     }
 
     @Test
@@ -295,5 +304,119 @@ class OpenGraphParserTest {
         assertEquals(2, openGraphData.article.authors.size)
         assertTrue(openGraphData.article.authors.contains("John Doe"))
         assertTrue(openGraphData.article.authors.contains("Jane Smith"))
+    }
+
+    // Sample HTML with video.movie-specific tags
+    private val videoMovieHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Movie Example</title>
+            <meta property="og:title" content="The Matrix" />
+            <meta property="og:type" content="video.movie" />
+            <meta property="og:url" content="https://example.com/movies/the-matrix" />
+            <meta property="og:image" content="https://example.com/matrix-poster.jpg" />
+            <meta property="og:description" content="A sci-fi action movie" />
+            <meta property="og:video:actor" content="Keanu Reeves" />
+            <meta property="og:video:actor" content="Laurence Fishburne" />
+            <meta property="og:video:director" content="Lana Wachowski" />
+            <meta property="og:video:director" content="Lilly Wachowski" />
+            <meta property="og:video:writer" content="Lana Wachowski" />
+            <meta property="og:video:writer" content="Lilly Wachowski" />
+            <meta property="og:video:duration" content="136" />
+            <meta property="og:video:release_date" content="1999-03-31" />
+            <meta property="og:video:tag" content="sci-fi" />
+            <meta property="og:video:tag" content="action" />
+        </head>
+        <body>
+            <h1>The Matrix</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    private val noTypeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Movie Example</title>
+            <meta property="og:title" content="The Matrix" />
+        </head>
+        <body>
+            <h1>The Matrix</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    private val unknownTypeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Movie Example</title>
+            <meta property="og:title" content="The Matrix" />
+            <meta property="og:type" content="test" />
+        </head>
+        <body>
+            <h1>The Matrix</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with video movie-specific tags`() {
+        val openGraphData = parser.parse(videoMovieHtml)
+
+        // Verify basic properties
+        assertEquals("The Matrix", openGraphData.title)
+        assertEquals("video.movie", openGraphData.type)
+        assertEquals("https://example.com/movies/the-matrix", openGraphData.url)
+        assertEquals("A sci-fi action movie", openGraphData.description)
+
+        // Verify video.movie-specific properties
+        assertNotNull(openGraphData.videoMovie)
+        assertEquals(2, openGraphData.videoMovie.actors.size)
+        assertTrue(openGraphData.videoMovie.actors.contains("Keanu Reeves"))
+        assertTrue(openGraphData.videoMovie.actors.contains("Laurence Fishburne"))
+        assertEquals(2, openGraphData.videoMovie.director.size)
+        assertTrue(openGraphData.videoMovie.director.contains("Lana Wachowski"))
+        assertTrue(openGraphData.videoMovie.director.contains("Lilly Wachowski"))
+        assertEquals(2, openGraphData.videoMovie.writer.size)
+        assertTrue(openGraphData.videoMovie.writer.contains("Lana Wachowski"))
+        assertTrue(openGraphData.videoMovie.writer.contains("Lilly Wachowski"))
+        assertEquals(136, openGraphData.videoMovie.duration)
+        assertEquals("1999-03-31", openGraphData.videoMovie.releaseDate)
+        assertEquals(2, openGraphData.videoMovie.tags.size)
+        assertTrue(openGraphData.videoMovie.tags.contains("sci-fi"))
+        assertTrue(openGraphData.videoMovie.tags.contains("action"))
+    }
+
+    @Test
+    fun `test getType method returns correct enum values`() {
+        // Test video.movie type
+        val videoMovieData = parser.parse(videoMovieHtml)
+        assertEquals(Type.VIDEO_MOVIE, videoMovieData.getType())
+
+        // Test article type
+        val articleData = parser.parse(articleHtml)
+        assertEquals(Type.ARTICLE, articleData.getType())
+
+        // Test profile type
+        val profileData = parser.parse(profileHtml)
+        assertEquals(Type.PROFILE, profileData.getType())
+
+        // Test book type
+        val bookData = parser.parse(bookHtml)
+        assertEquals(Type.BOOK, bookData.getType())
+
+        // Test website type (should return UNKNOWN as it's not in our enum)
+        val websiteData = parser.parse(multipleImagesHtml)
+        assertEquals(Type.WEBSITE, websiteData.getType())
+
+        // Test no type defaults to Website
+        val noTypeData = parser.parse(noTypeHtml)
+        assertEquals(Type.WEBSITE, noTypeData.getType())
+
+        // Test unrecognized type is Unknown
+        val unkwownData = parser.parse(unknownTypeHtml)
+        assertEquals(Type.UNKNOWN, unkwownData.getType())
     }
 }
