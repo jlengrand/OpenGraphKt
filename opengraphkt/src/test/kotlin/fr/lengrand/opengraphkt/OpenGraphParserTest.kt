@@ -334,6 +334,33 @@ class OpenGraphParserTest {
         </html>
     """.trimIndent()
 
+    private val noTypeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Movie Example</title>
+            <meta property="og:title" content="The Matrix" />
+        </head>
+        <body>
+            <h1>The Matrix</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    private val unknownTypeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Movie Example</title>
+            <meta property="og:title" content="The Matrix" />
+            <meta property="og:type" content="test" />
+        </head>
+        <body>
+            <h1>The Matrix</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
     @Test
     fun `test parse with video movie-specific tags`() {
         val openGraphData = parser.parse(videoMovieHtml)
@@ -360,5 +387,36 @@ class OpenGraphParserTest {
         assertEquals(2, openGraphData.videoMovie.tags.size)
         assertTrue(openGraphData.videoMovie.tags.contains("sci-fi"))
         assertTrue(openGraphData.videoMovie.tags.contains("action"))
+    }
+
+    @Test
+    fun `test getType method returns correct enum values`() {
+        // Test video.movie type
+        val videoMovieData = parser.parse(videoMovieHtml)
+        assertEquals(OpenGraphType.VIDEO_MOVIE, videoMovieData.getType())
+
+        // Test article type
+        val articleData = parser.parse(articleHtml)
+        assertEquals(OpenGraphType.ARTICLE, articleData.getType())
+
+        // Test profile type
+        val profileData = parser.parse(profileHtml)
+        assertEquals(OpenGraphType.PROFILE, profileData.getType())
+
+        // Test book type
+        val bookData = parser.parse(bookHtml)
+        assertEquals(OpenGraphType.BOOK, bookData.getType())
+
+        // Test website type (should return UNKNOWN as it's not in our enum)
+        val websiteData = parser.parse(multipleImagesHtml)
+        assertEquals(OpenGraphType.WEBSITE, websiteData.getType())
+
+        // Test no type defaults to Website
+        val noTypeData = parser.parse(noTypeHtml)
+        assertEquals(OpenGraphType.WEBSITE, noTypeData.getType())
+
+        // Test unrecognized type is Unknown
+        val unkwownData = parser.parse(unknownTypeHtml)
+        assertEquals(OpenGraphType.UNKNOWN, unkwownData.getType())
     }
 }

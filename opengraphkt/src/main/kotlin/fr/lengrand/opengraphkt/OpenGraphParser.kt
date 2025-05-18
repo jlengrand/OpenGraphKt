@@ -6,6 +6,52 @@ import org.jsoup.select.Elements
 import java.io.File
 import java.net.URL
 
+/**
+ * Enum representing the different types of Open Graph objects.
+ */
+enum class OpenGraphType {
+    ARTICLE,
+    PROFILE,
+    BOOK,
+    MUSIC_SONG,
+    MUSIC_ALBUM,
+    MUSIC_PLAYLIST,
+    MUSIC_RADIO_STATION,
+    VIDEO_MOVIE,
+    VIDEO_TV_SHOW,
+    VIDEO_OTHER,
+    VIDEO_EPISODE,
+    WEBSITE,
+    UNKNOWN;
+
+    companion object {
+        /**
+         * Converts a string type to the corresponding enum value.
+         *
+         * @param type The string representation of the type
+         * @return The corresponding OpenGraphType enum value, or UNKNOWN if not recognized
+         */
+        fun fromString(type: String?): OpenGraphType {
+            return when (type) {
+                "article" -> ARTICLE
+                "profile" -> PROFILE
+                "book" -> BOOK
+                "music.song" -> MUSIC_SONG
+                "music.album" -> MUSIC_ALBUM
+                "music.playlist" -> MUSIC_PLAYLIST
+                "music.radio_station" -> MUSIC_RADIO_STATION
+                "video.movie" -> VIDEO_MOVIE
+                "video.tv_show" -> VIDEO_TV_SHOW
+                "video.other" -> VIDEO_OTHER
+                "video.episode" -> VIDEO_EPISODE
+                "website" -> WEBSITE
+                null -> WEBSITE // No type tag defaults to Website
+                else -> UNKNOWN // Another type we are not aware of
+            }
+        }
+    }
+}
+
 data class OpenGraphTag(
     val property: String,
     val content: String,
@@ -61,6 +107,15 @@ data class OpenGraphData(
      */
     fun isValid(): Boolean {
         return title != null && type != null && images.isNotEmpty() && url != null
+    }
+
+    /**
+     * Returns the type of this Open Graph data as an enum value.
+     *
+     * @return The OpenGraphType enum value corresponding to the type string, or UNKNOWN if the type is not recognized
+     */
+    fun getType(): OpenGraphType {
+        return OpenGraphType.fromString(type)
     }
 }
 
