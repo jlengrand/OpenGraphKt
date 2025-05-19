@@ -73,4 +73,5 @@ jobs:
     - name: Upload coverage reports
       uses: codecov/codecov-action@v5
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         files: opengraphkt/build/reports/kover/report.xml
