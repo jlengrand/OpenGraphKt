@@ -13,8 +13,10 @@ OpenGraphKt is a tiny wrapper on top of JSoup.
 
 ## Current status 
 
-* WIP and absolutely not ready for production usage.
-* Implementation missing the music, video and audio verticals (see https://ogp.me/)
+* Library can extract OpenGraph tags from HTML via a `URL`, `String` or `File` input.
+* Current implementation is JVM only, due to the `JSoup` dependency.
+* Protocol implementation is complete for `og:` tags, but types aren't fully correct (most types currently are `String`).
+* Library should be considered in pre-alpha, use this in production at your own risks :).
 
 ## Dependencies
 
