@@ -9,7 +9,7 @@
 
 
 [OpenGraphKt](https://github.com/jlengrand/OpenGraphKt) is a minimalist Kotlin library to work with the [Open Graph tags](https://ogp.me/) protocol. 
-OpenGraphKt is a tiny wrapper on top of JSoup. 
+OpenGraphKt is a tiny wrapper on top of JSoup.
 
 ## Current status 
 
@@ -17,6 +17,32 @@ OpenGraphKt is a tiny wrapper on top of JSoup.
 * Current implementation is JVM only, due to the `JSoup` dependency.
 * Protocol implementation is complete for `og:` tags, but types aren't fully correct (most types currently are `String`).
 * Library should be considered in pre-alpha, use this in production at your own risks :).
+
+## Usage
+
+See [Main.kt](./demo-remote/src/main/kotlin/fr/lengrand/opengraphktremote/Main.kt) in the `demo-remote` submodule for usage examples. 
+
+In short : 
+
+* Add dependency to your Maven / Gradle file. For example : 
+
+```bash
+    implementation("fr.lengrand:opengraphkt:0.0.2")
+```
+
+* Enjoy: 
+
+```kotlin
+val parser = Parser()
+val openGraphDataDoc = parser.parse("https://www.imdb.com/title/tt0068646/")
+
+println("Title: ${openGraphDataDoc.title}")
+println("Is valid: ${openGraphDataDoc.isValid()}")
+
+// Title: The Rock
+// Is valid: true
+```
+
 
 ## Dependencies
 
