@@ -38,27 +38,40 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: all
-        path: .
-      # Uploads code coverage reports to Covecov
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: opengraphkt/build/reports/kover/report.xml
-    # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
-    # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
-    #
-    # - name: Setup Gradle
-    #   uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-    #   with:
-    #     gradle-version: '8.9'
-    #
-    # - name: Build with Gradle 8.9
-    #   run: gradle build
+
+  code-coverage:
+    strategy:
+      matrix:
+        java-version: ['23']
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: all
+          path: .
+        # Uploads code coverage reports to Covecov
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: opengraphkt/build/reports/kover/report.xml
 
   dependency-submission:
     runs-on: ubuntu-latest
