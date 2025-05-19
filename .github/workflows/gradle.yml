@@ -60,7 +60,7 @@ jobs:
         uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build
+        run: ./gradlew koverXmlReport
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
