@@ -1,6 +1,7 @@
 # OpenGraphKt
 
 [![build](https://github.com/jlengrand/OpenGraphKt/actions/workflows/gradle.yml/badge.svg)](https://github.com/simplex-chat/jlengrand/OpenGraphKt/workflows/gradle.yml)
+![Codecov](https://img.shields.io/codecov/c/github/jlengrand/OpenGraphKt)
 ![GitHub Release Date](https://img.shields.io/github/release-date/jlengrand/OpenGraphKt)
 ![Maven Central Version](https://img.shields.io/maven-central/v/fr.lengrand/opengraphkt)
 ![kotlin-version](https://img.shields.io/badge/kotlin-2.1.0-blue?logo=kotlin)
