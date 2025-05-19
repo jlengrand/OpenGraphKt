@@ -3,6 +3,8 @@ import com.vanniktech.maven.publish.SonatypeHost
 plugins {
     kotlin("jvm")
     id("com.vanniktech.maven.publish") version "0.32.0"
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
+
 }
 
 group = "fr.lengrand"
@@ -66,6 +68,16 @@ mavenPublishing {
             url = "https://github.com/jlengrand/OpenGraphKt"
             connection = "scm:git:git://github.com/jlengrand/OpenGraphKt.git"
             developerConnection = "scm:git:ssh://git@github.com/jlengrand/OpenGraphKt.git"
+        }
+    }
+}
+
+kover {
+    reports {
+        verify {
+            rule {
+                minBound(70)
+            }
         }
     }
 }
