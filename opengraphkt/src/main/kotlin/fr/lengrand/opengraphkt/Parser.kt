@@ -22,7 +22,7 @@ class Parser {
      * Extracts all Open Graph tags from a JSoup Document and returns a structured Data object.
      * 
      * @param document The JSoup Document to parse
-     * @return An Data object containing all extracted Open Graph data
+     * @return A Data object containing all extracted Open Graph data
      */
     fun parse(document: Document): Data {
         val tags = document.select("meta[property^=og:]")
