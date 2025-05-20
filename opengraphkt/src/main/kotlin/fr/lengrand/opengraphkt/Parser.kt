@@ -350,7 +350,7 @@ class Parser {
      * Builds an Profile object from profile-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
-     * @return An Profile object, or null if no profile tags are found
+     * @return A Profile object, or null if no profile tags are found
      */
     private fun buildProfile(groupedTags: Map<String, List<Tag>>): Profile? {
         val profileTags = groupedTags.getOrDefault("profile", emptyList())
@@ -362,7 +362,8 @@ class Parser {
         val firstName = profileTags.firstOrNull { it.property == "profile:first_name" }?.content
         val lastName = profileTags.firstOrNull { it.property == "profile:last_name" }?.content
         val username = profileTags.firstOrNull { it.property == "profile:username" }?.content
-        val gender = profileTags.firstOrNull { it.property == "profile:gender" }?.content
+        val genderString = profileTags.firstOrNull { it.property == "profile:gender" }?.content
+        val gender = if(genderString != null) Gender.fromString(genderString) else null
 
         return Profile(
             firstName = firstName,
@@ -440,18 +441,22 @@ class Parser {
         }
 
         val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val songDisc = musicTags.firstOrNull { it.property == "music:song:disc" }?.content?.toIntOrNull()
+        val songTrack = musicTags.firstOrNull { it.property == "music:song:track" }?.content?.toIntOrNull()
         val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
         val releaseDate = musicTags.firstOrNull { it.property == "music:release_date" }?.content
 
         return MusicAlbum(
             songs = songs,
+            songDisc =  songDisc,
+            songTrack = songTrack,
             musician = musicians,
             releaseDate = releaseDate
         )
     }
 
     /**
-     * Builds an MusicPlaylist object from music.playlist-related tags.
+     * Builds a MusicPlaylist object from music.playlist-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
      * @return An MusicPlaylist object, or null if no music.playlist tags are found
@@ -464,16 +469,20 @@ class Parser {
         }
 
         val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val songDisc = musicTags.firstOrNull { it.property == "music:song:disc" }?.content?.toIntOrNull()
+        val songTrack = musicTags.firstOrNull { it.property == "music:song:track" }?.content?.toIntOrNull()
         val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
 
         return MusicPlaylist(
             songs = songs,
+            songDisc =  songDisc,
+            songTrack = songTrack,
             creator = creator
         )
     }
 
     /**
-     * Builds an MusicRadioStation object from music.radio_station-related tags.
+     * Builds a MusicRadioStation object from music.radio_station-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
      * @return An MusicRadioStation object, or null if no music.radio_station tags are found

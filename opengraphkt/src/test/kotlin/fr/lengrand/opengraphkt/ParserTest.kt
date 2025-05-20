@@ -229,7 +229,7 @@ class ParserTest {
         assertEquals("John", openGraphData.profile.firstName)
         assertEquals("Doe", openGraphData.profile.lastName)
         assertEquals("johndoe", openGraphData.profile.username)
-        assertEquals("male", openGraphData.profile.gender)
+        assertEquals(Gender.MALE, openGraphData.profile.gender)
     }
 
     @Test
