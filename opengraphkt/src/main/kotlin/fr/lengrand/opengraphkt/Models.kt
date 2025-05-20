@@ -63,12 +63,12 @@ data class Data(
     val url: String?,
     val description: String?,
 
+    // Other metadata
     val siteName: String?,
     val determiner: String?,
     val locale: String?,
     val localeAlternate: List<String>,
 
-    // Structured properties
     val images: List<Image>,
     val videos: List<Video>,
     val audios: List<Audio>,
@@ -77,14 +77,10 @@ data class Data(
     val article: Article?,
     val profile: Profile?,
     val book: Book?,
-
-    // Music types
     val musicSong: MusicSong?,
     val musicAlbum: MusicAlbum?,
     val musicPlaylist: MusicPlaylist?,
     val musicRadioStation: MusicRadioStation?,
-
-    // Video types
     val videoMovie: VideoMovie?,
     val videoEpisode: VideoEpisode?
 ) {
