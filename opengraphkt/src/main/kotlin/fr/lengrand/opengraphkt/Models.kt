@@ -1,5 +1,7 @@
 package fr.lengrand.opengraphkt
 
+import java.net.URL
+
 /**
  * Enum representing the different types of Open Graph objects.
  */
@@ -75,7 +77,7 @@ data class Data(
     // Basic metadata
     val title: String?,
     val type: String?,
-    val url: String?,
+    val url: URL?,
     val description: String?,
 
     // Other metadata

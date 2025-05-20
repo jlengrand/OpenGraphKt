@@ -3,9 +3,16 @@ package fr.lengrand.opengraphkt
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.net.URL
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+
+// Helper function to compare URL objects with String URLs
+private fun assertUrlEquals(expected: String, actual: URL?) {
+    assertNotNull(actual)
+    assertEquals(expected, actual.toString())
+}
 
 class ParserTest {
 
@@ -145,7 +152,7 @@ class ParserTest {
         // Verify that all required properties are extracted correctly
         assertEquals("The Rock", openGraphData.title)
         assertEquals("video.movie", openGraphData.type)
-        assertEquals("https://example.com/the-rock", openGraphData.url)
+        assertUrlEquals("https://example.com/the-rock", openGraphData.url)
 
         // Verify that the OpenGraphData object is valid
         assertTrue(openGraphData.isValid())
@@ -198,7 +205,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("Breaking News", openGraphData.title)
         assertEquals("article", openGraphData.type)
-        assertEquals("https://example.com/news/breaking", openGraphData.url)
+        assertUrlEquals("https://example.com/news/breaking", openGraphData.url)
         assertEquals("Latest breaking news", openGraphData.description)
 
         // Verify article-specific properties
@@ -221,7 +228,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("John Doe", openGraphData.title)
         assertEquals("profile", openGraphData.type)
-        assertEquals("https://example.com/profile/johndoe", openGraphData.url)
+        assertUrlEquals("https://example.com/profile/johndoe", openGraphData.url)
         assertEquals("John Doe's profile", openGraphData.description)
 
         // Verify profile-specific properties
@@ -239,7 +246,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("The Great Novel", openGraphData.title)
         assertEquals("book", openGraphData.type)
-        assertEquals("https://example.com/books/great-novel", openGraphData.url)
+        assertUrlEquals("https://example.com/books/great-novel", openGraphData.url)
         assertEquals("A great novel", openGraphData.description)
 
         // Verify book-specific properties
@@ -260,7 +267,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("Photo Gallery", openGraphData.title)
         assertEquals("website", openGraphData.type)
-        assertEquals("https://example.com/gallery", openGraphData.url)
+        assertUrlEquals("https://example.com/gallery", openGraphData.url)
         assertEquals("A gallery of images", openGraphData.description)
 
         // Verify multiple images
@@ -293,7 +300,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("Breaking News", openGraphData.title)
         assertEquals("article", openGraphData.type)
-        assertEquals("https://example.com/news/breaking", openGraphData.url)
+        assertUrlEquals("https://example.com/news/breaking", openGraphData.url)
         assertEquals("Latest breaking news", openGraphData.description)
 
         // Verify article-specific properties
@@ -368,7 +375,7 @@ class ParserTest {
         // Verify basic properties
         assertEquals("The Matrix", openGraphData.title)
         assertEquals("video.movie", openGraphData.type)
-        assertEquals("https://example.com/movies/the-matrix", openGraphData.url)
+        assertUrlEquals("https://example.com/movies/the-matrix", openGraphData.url)
         assertEquals("A sci-fi action movie", openGraphData.description)
 
         // Verify video.movie-specific properties

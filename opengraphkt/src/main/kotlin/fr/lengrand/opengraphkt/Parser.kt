@@ -4,6 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 /**
@@ -100,7 +101,8 @@ class Parser {
         // Build basic properties
         val title = getFirstTagContent(tags, "title")
         val type = getFirstTagContent(tags, "type")
-        val url = getFirstTagContent(tags, "url")
+        val urlString = getFirstTagContent(tags, "url")
+        val url = urlString?.let{URI(urlString).toURL()}
         val description = getFirstTagContent(tags, "description")
         val siteName = getFirstTagContent(tags, "site_name")
         val determiner = getFirstTagContent(tags, "determiner")
@@ -363,7 +365,7 @@ class Parser {
         val lastName = profileTags.firstOrNull { it.property == "profile:last_name" }?.content
         val username = profileTags.firstOrNull { it.property == "profile:username" }?.content
         val genderString = profileTags.firstOrNull { it.property == "profile:gender" }?.content
-        val gender = if(genderString != null) Gender.fromString(genderString) else null
+        val gender = genderString?.let(Gender::fromString)
 
         return Profile(
             firstName = firstName,
