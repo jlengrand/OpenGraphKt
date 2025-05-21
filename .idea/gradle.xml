@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/demo" />
             <option value="$PROJECT_DIR$/demo-remote" />
             <option value="$PROJECT_DIR$/opengraphkt" />
+            <option value="$PROJECT_DIR$/scrape-test" />
           </set>
         </option>
       </GradleProjectSettings>

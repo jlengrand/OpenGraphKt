@@ -10,3 +10,4 @@ rootProject.name = "OpenGraphKt"
 include("opengraphkt")
 include("demo")
 include("demo-remote")
+include("scrape-test")
