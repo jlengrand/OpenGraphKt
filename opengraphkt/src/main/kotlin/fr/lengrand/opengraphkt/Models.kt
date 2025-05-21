@@ -1,5 +1,7 @@
 package fr.lengrand.opengraphkt
 
+import java.net.URL
+
 /**
  * Enum representing the different types of Open Graph objects.
  */
@@ -46,6 +48,21 @@ enum class Type {
     }
 }
 
+enum class Gender {
+    MALE,
+    FEMALE;
+
+    companion object {
+        fun fromString(gender: String): Gender {
+            return valueOf(gender.uppercase())
+        }
+    }
+
+    override fun toString(): String {
+        return this.toString().lowercase()
+    }
+}
+
 data class Tag(
     val property: String,
     val content: String,
@@ -60,15 +77,15 @@ data class Data(
     // Basic metadata
     val title: String?,
     val type: String?,
-    val url: String?,
+    val url: URL?,
     val description: String?,
 
+    // Other metadata
     val siteName: String?,
     val determiner: String?,
     val locale: String?,
     val localeAlternate: List<String>,
 
-    // Structured properties
     val images: List<Image>,
     val videos: List<Video>,
     val audios: List<Audio>,
@@ -77,14 +94,10 @@ data class Data(
     val article: Article?,
     val profile: Profile?,
     val book: Book?,
-
-    // Music types
     val musicSong: MusicSong?,
     val musicAlbum: MusicAlbum?,
     val musicPlaylist: MusicPlaylist?,
     val musicRadioStation: MusicRadioStation?,
-
-    // Video types
     val videoMovie: VideoMovie?,
     val videoEpisode: VideoEpisode?
 ) {
@@ -137,24 +150,13 @@ data class Audio(
     val type: String?
 )
 
-/**
- * * video.tv_show - same as video.movie
- * * video.other - same as video.movie
- */
 data class Article(
     val publishedTime: String?,
     val modifiedTime: String?,
     val expirationTime: String?,
-    val section: String?,
     val authors: List<String>,
+    val section: String?,
     val tags: List<String>
-)
-
-data class Profile(
-    val firstName: String?,
-    val lastName: String?,
-    val username: String?,
-    val gender: String?
 )
 
 data class Book(
@@ -162,6 +164,13 @@ data class Book(
     val isbn: String?,
     val releaseDate: String?,
     val tags: List<String>
+)
+
+data class Profile(
+    val firstName: String?,
+    val lastName: String?,
+    val username: String?,
+    val gender: Gender?
 )
 
 data class MusicSong(
@@ -174,12 +183,16 @@ data class MusicSong(
 
 data class MusicAlbum(
     val songs: List<String>,
+    val songDisc: Int?,
+    val songTrack: Int?,
     val musician: List<String>,
     val releaseDate: String?
 )
 
 data class MusicPlaylist(
     val songs: List<String>,
+    val songDisc: Int?,
+    val songTrack: Int?,
     val creator: String?
 )
 
