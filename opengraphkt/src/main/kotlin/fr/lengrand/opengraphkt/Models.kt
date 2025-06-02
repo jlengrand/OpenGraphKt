@@ -1,6 +1,7 @@
 package fr.lengrand.opengraphkt
 
 import java.net.URL
+import java.time.OffsetDateTime
 
 /**
  * Enum representing the different types of Open Graph objects.
@@ -83,7 +84,7 @@ data class Data(
     // Other metadata
     val siteName: String?,
     val determiner: String?,
-    val locale: String?,
+    val locale:  String?,
     val localeAlternate: List<String>,
 
     val images: List<Image>,
@@ -186,7 +187,7 @@ data class MusicAlbum(
     val songDisc: Int?,
     val songTrack: Int?,
     val musician: List<String>,
-    val releaseDate: String?
+    val releaseDate: OffsetDateTime?
 )
 
 data class MusicPlaylist(

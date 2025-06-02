@@ -6,6 +6,8 @@ import org.jsoup.select.Elements
 import java.io.File
 import java.net.URI
 import java.net.URL
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * A comprehensive parser for Open Graph protocol tags.
@@ -17,6 +19,30 @@ import java.net.URL
  * @see <a href="https://ogp.me/">Open Graph Protocol</a>
  */
 class Parser {
+
+    /**
+     * Parses a string in ISO 8601 format to an OffsetDateTime.
+     * Handles both date-only (YYYY-MM-DD) and date-time formats.
+     * 
+     * @param dateTimeString The string to parse
+     * @return The parsed OffsetDateTime, or null if the string is null or cannot be parsed
+     */
+    private fun parseDateTime(dateTimeString: String?): OffsetDateTime? {
+        if (dateTimeString == null) {
+            return null
+        }
+
+        // Either parse full input or as date only
+        return try {
+            OffsetDateTime.parse(dateTimeString)
+        } catch (_: DateTimeParseException) {
+            try {
+                OffsetDateTime.parse(dateTimeString + "T00:00:00Z")
+            } catch (_: DateTimeParseException) {
+                null
+            }
+        }
+    }
 
     /**
      * Extracts all Open Graph tags from a JSoup Document and returns a structured Data object.
@@ -446,7 +472,8 @@ class Parser {
         val songDisc = musicTags.firstOrNull { it.property == "music:song:disc" }?.content?.toIntOrNull()
         val songTrack = musicTags.firstOrNull { it.property == "music:song:track" }?.content?.toIntOrNull()
         val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
-        val releaseDate = musicTags.firstOrNull { it.property == "music:release_date" }?.content
+        val releaseDateString = musicTags.firstOrNull { it.property == "music:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
 
         return MusicAlbum(
             songs = songs,

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
+import java.time.OffsetDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -396,6 +397,69 @@ class ParserTest {
         assertTrue(openGraphData.videoMovie.tags.contains("action"))
     }
 
+    // Sample HTML with music.album-specific tags
+    private val musicAlbumHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Music Album Example</title>
+            <meta property="og:title" content="Greatest Hits" />
+            <meta property="og:type" content="music.album" />
+            <meta property="og:url" content="https://example.com/albums/greatest-hits" />
+            <meta property="og:image" content="https://example.com/album-cover.jpg" />
+            <meta property="og:description" content="A collection of greatest hits" />
+            <meta property="og:music:song" content="Song 1" />
+            <meta property="og:music:song" content="Song 2" />
+            <meta property="og:music:song:disc" content="1" />
+            <meta property="og:music:song:track" content="1" />
+            <meta property="og:music:musician" content="Famous Musician" />
+            <meta property="og:music:musician" content="Another Musician" />
+            <meta property="og:music:release_date" content="2023-01-15T12:30:00Z" />
+        </head>
+        <body>
+            <h1>Greatest Hits</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with music album-specific tags`() {
+        val openGraphData = parser.parse(musicAlbumHtml)
+
+        // Verify basic properties
+        assertEquals("Greatest Hits", openGraphData.title)
+        assertEquals("music.album", openGraphData.type)
+        assertUrlEquals("https://example.com/albums/greatest-hits", openGraphData.url)
+        assertEquals("A collection of greatest hits", openGraphData.description)
+
+        // Verify music.album-specific properties
+        assertNotNull(openGraphData.musicAlbum)
+        assertEquals(2, openGraphData.musicAlbum.songs.size)
+        assertTrue(openGraphData.musicAlbum.songs.contains("Song 1"))
+        assertTrue(openGraphData.musicAlbum.songs.contains("Song 2"))
+        assertEquals(1, openGraphData.musicAlbum.songDisc)
+        assertEquals(1, openGraphData.musicAlbum.songTrack)
+        assertEquals(2, openGraphData.musicAlbum.musician.size)
+        assertTrue(openGraphData.musicAlbum.musician.contains("Famous Musician"))
+        assertTrue(openGraphData.musicAlbum.musician.contains("Another Musician"))
+
+        // Verify releaseDate is correctly parsed as OffsetDateTime
+        assertNotNull(openGraphData.musicAlbum.releaseDate)
+        assertEquals(OffsetDateTime.parse("2023-01-15T12:30:00Z"), openGraphData.musicAlbum.releaseDate)
+    }
+
+    @Test
+    fun `test parse with date-only release date`() {
+        // Create a modified version of the music album HTML with a date-only release date
+        val dateOnlyHtml = musicAlbumHtml.replace("2023-01-15T12:30:00Z", "2023-01-15")
+        val openGraphData = parser.parse(dateOnlyHtml)
+
+        // Verify releaseDate is correctly parsed as OffsetDateTime with default time
+        assertNotNull(openGraphData.musicAlbum)
+        assertNotNull(openGraphData.musicAlbum.releaseDate)
+        assertEquals(OffsetDateTime.parse("2023-01-15T00:00:00Z"), openGraphData.musicAlbum.releaseDate)
+    }
+
     @Test
     fun `test getType method returns correct enum values`() {
         // Test video.movie type
@@ -413,6 +477,10 @@ class ParserTest {
         // Test book type
         val bookData = parser.parse(bookHtml)
         assertEquals(Type.BOOK, bookData.getType())
+
+        // Test music.album type
+        val musicAlbumData = parser.parse(musicAlbumHtml)
+        assertEquals(Type.MUSIC_ALBUM, musicAlbumData.getType())
 
         // Test website type (should return UNKNOWN as it's not in our enum)
         val websiteData = parser.parse(multipleImagesHtml)
