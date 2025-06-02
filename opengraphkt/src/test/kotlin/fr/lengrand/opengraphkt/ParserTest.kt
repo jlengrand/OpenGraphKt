@@ -500,4 +500,185 @@ class ParserTest {
         val unkwownData = parser.parse(unknownTypeHtml)
         assertEquals(Type.UNKNOWN, unkwownData.getType())
     }
+
+    // Sample HTML with music.song-specific tags
+    private val musicSongHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Music Song Example</title>
+            <meta property="og:title" content="Awesome Song" />
+            <meta property="og:type" content="music.song" />
+            <meta property="og:url" content="https://example.com/songs/awesome-song" />
+            <meta property="og:image" content="https://example.com/song-cover.jpg" />
+            <meta property="og:description" content="An awesome song" />
+            <meta property="og:music:duration" content="240" />
+            <meta property="og:music:album" content="Awesome Album" />
+            <meta property="og:music:album:disc" content="1" />
+            <meta property="og:music:album:track" content="3" />
+            <meta property="og:music:musician" content="Awesome Artist" />
+            <meta property="og:music:musician" content="Featured Artist" />
+        </head>
+        <body>
+            <h1>Awesome Song</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with music song-specific tags`() {
+        val openGraphData = parser.parse(musicSongHtml)
+
+        // Verify basic properties
+        assertEquals("Awesome Song", openGraphData.title)
+        assertEquals("music.song", openGraphData.type)
+        assertUrlEquals("https://example.com/songs/awesome-song", openGraphData.url)
+        assertEquals("An awesome song", openGraphData.description)
+
+        // Verify music.song-specific properties
+        assertNotNull(openGraphData.musicSong)
+        assertEquals(240, openGraphData.musicSong.duration)
+        assertEquals("Awesome Album", openGraphData.musicSong.album)
+        assertEquals(1, openGraphData.musicSong.albumDisc)
+        assertEquals(3, openGraphData.musicSong.albumTrack)
+        assertEquals(2, openGraphData.musicSong.musician.size)
+        assertTrue(openGraphData.musicSong.musician.contains("Awesome Artist"))
+        assertTrue(openGraphData.musicSong.musician.contains("Featured Artist"))
+    }
+
+    // Sample HTML with music.playlist-specific tags
+    private val musicPlaylistHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Music Playlist Example</title>
+            <meta property="og:title" content="Awesome Playlist" />
+            <meta property="og:type" content="music.playlist" />
+            <meta property="og:url" content="https://example.com/playlists/awesome-playlist" />
+            <meta property="og:image" content="https://example.com/playlist-cover.jpg" />
+            <meta property="og:description" content="An awesome playlist" />
+            <meta property="og:music:song" content="Song 1" />
+            <meta property="og:music:song" content="Song 2" />
+            <meta property="og:music:song" content="Song 3" />
+            <meta property="og:music:song:disc" content="1" />
+            <meta property="og:music:song:track" content="1" />
+            <meta property="og:music:creator" content="Playlist Creator" />
+        </head>
+        <body>
+            <h1>Awesome Playlist</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with music playlist-specific tags`() {
+        val openGraphData = parser.parse(musicPlaylistHtml)
+
+        // Verify basic properties
+        assertEquals("Awesome Playlist", openGraphData.title)
+        assertEquals("music.playlist", openGraphData.type)
+        assertUrlEquals("https://example.com/playlists/awesome-playlist", openGraphData.url)
+        assertEquals("An awesome playlist", openGraphData.description)
+
+        // Verify music.playlist-specific properties
+        assertNotNull(openGraphData.musicPlaylist)
+        assertEquals(3, openGraphData.musicPlaylist.songs.size)
+        assertTrue(openGraphData.musicPlaylist.songs.contains("Song 1"))
+        assertTrue(openGraphData.musicPlaylist.songs.contains("Song 2"))
+        assertTrue(openGraphData.musicPlaylist.songs.contains("Song 3"))
+        assertEquals(1, openGraphData.musicPlaylist.songDisc)
+        assertEquals(1, openGraphData.musicPlaylist.songTrack)
+        assertEquals("Playlist Creator", openGraphData.musicPlaylist.creator)
+    }
+
+    // Sample HTML with music.radio_station-specific tags
+    private val musicRadioStationHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Music Radio Station Example</title>
+            <meta property="og:title" content="Awesome Radio" />
+            <meta property="og:type" content="music.radio_station" />
+            <meta property="og:url" content="https://example.com/radio/awesome-radio" />
+            <meta property="og:image" content="https://example.com/radio-logo.jpg" />
+            <meta property="og:description" content="An awesome radio station" />
+            <meta property="og:music:creator" content="Radio Creator" />
+        </head>
+        <body>
+            <h1>Awesome Radio</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with music radio station-specific tags`() {
+        val openGraphData = parser.parse(musicRadioStationHtml)
+
+        // Verify basic properties
+        assertEquals("Awesome Radio", openGraphData.title)
+        assertEquals("music.radio_station", openGraphData.type)
+        assertUrlEquals("https://example.com/radio/awesome-radio", openGraphData.url)
+        assertEquals("An awesome radio station", openGraphData.description)
+
+        // Verify music.radio_station-specific properties
+        assertNotNull(openGraphData.musicRadioStation)
+        assertEquals("Radio Creator", openGraphData.musicRadioStation.creator)
+    }
+
+    // Sample HTML with video.episode-specific tags
+    private val videoEpisodeHtml = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Video Episode Example</title>
+            <meta property="og:title" content="Awesome Episode" />
+            <meta property="og:type" content="video.episode" />
+            <meta property="og:url" content="https://example.com/episodes/awesome-episode" />
+            <meta property="og:image" content="https://example.com/episode-thumbnail.jpg" />
+            <meta property="og:description" content="An awesome episode" />
+            <meta property="og:video:actor" content="Actor 1" />
+            <meta property="og:video:actor" content="Actor 2" />
+            <meta property="og:video:director" content="Director 1" />
+            <meta property="og:video:writer" content="Writer 1" />
+            <meta property="og:video:writer" content="Writer 2" />
+            <meta property="og:video:duration" content="45" />
+            <meta property="og:video:release_date" content="2023-05-15" />
+            <meta property="og:video:tag" content="drama" />
+            <meta property="og:video:tag" content="comedy" />
+            <meta property="og:video:series" content="Awesome Series" />
+        </head>
+        <body>
+            <h1>Awesome Episode</h1>
+        </body>
+        </html>
+    """.trimIndent()
+
+    @Test
+    fun `test parse with video episode-specific tags`() {
+        val openGraphData = parser.parse(videoEpisodeHtml)
+
+        // Verify basic properties
+        assertEquals("Awesome Episode", openGraphData.title)
+        assertEquals("video.episode", openGraphData.type)
+        assertUrlEquals("https://example.com/episodes/awesome-episode", openGraphData.url)
+        assertEquals("An awesome episode", openGraphData.description)
+
+        // Verify video.episode-specific properties
+        assertNotNull(openGraphData.videoEpisode)
+        assertEquals(2, openGraphData.videoEpisode.actors.size)
+        assertTrue(openGraphData.videoEpisode.actors.contains("Actor 1"))
+        assertTrue(openGraphData.videoEpisode.actors.contains("Actor 2"))
+        assertEquals(1, openGraphData.videoEpisode.director.size)
+        assertTrue(openGraphData.videoEpisode.director.contains("Director 1"))
+        assertEquals(2, openGraphData.videoEpisode.writer.size)
+        assertTrue(openGraphData.videoEpisode.writer.contains("Writer 1"))
+        assertTrue(openGraphData.videoEpisode.writer.contains("Writer 2"))
+        assertEquals(45, openGraphData.videoEpisode.duration)
+        assertNotNull(openGraphData.videoEpisode.releaseDate)
+        assertEquals(OffsetDateTime.parse("2023-05-15T00:00:00Z"), openGraphData.videoEpisode.releaseDate)
+        assertEquals(2, openGraphData.videoEpisode.tags.size)
+        assertTrue(openGraphData.videoEpisode.tags.contains("drama"))
+        assertTrue(openGraphData.videoEpisode.tags.contains("comedy"))
+        assertEquals("Awesome Series", openGraphData.videoEpisode.series)
+    }
 }
