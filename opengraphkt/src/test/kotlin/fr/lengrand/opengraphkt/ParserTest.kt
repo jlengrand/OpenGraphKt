@@ -29,6 +29,8 @@ class ParserTest {
             <meta property="og:type" content="video.movie" />
             <meta property="og:url" content="https://example.com/the-rock" />
             <meta property="og:image" content="https://example.com/rock.jpg" />
+            <meta property="og:image:secure_url" content="https://secure.example.com/rock.jpg" />
+            <meta property="og:image:type" content="image/jpeg" />
             <meta property="og:image:width" content="300" />
             <meta property="og:image:height" content="200" />
             <meta property="og:image:alt" content="A promotional image for The Rock" />
@@ -130,12 +132,18 @@ class ParserTest {
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://example.com/gallery" />
             <meta property="og:image" content="https://example.com/image1.jpg" />
+            <meta property="og:image:secure_url" content="https://secure.example.com/image1.jpg" />
+            <meta property="og:image:type" content="image/jpeg" />
             <meta property="og:image:width" content="800" />
             <meta property="og:image:height" content="600" />
             <meta property="og:image" content="https://example.com/image2.jpg" />
+            <meta property="og:image:secure_url" content="https://secure.example.com/image2.jpg" />
+            <meta property="og:image:type" content="image/png" />
             <meta property="og:image:width" content="1024" />
             <meta property="og:image:height" content="768" />
             <meta property="og:image" content="https://example.com/image3.jpg" />
+            <meta property="og:image:secure_url" content="https://secure.example.com/image3.jpg" />
+            <meta property="og:image:type" content="image/gif" />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="900" />
             <meta property="og:description" content="A gallery of images" />
@@ -159,12 +167,14 @@ class ParserTest {
         assertTrue(openGraphData.isValid())
 
         // Verify that all tags are extracted
-        assertEquals(18, openGraphData.tags.size)
+        assertEquals(20, openGraphData.tags.size)
 
         // Verify image properties
         assertEquals(1, openGraphData.images.size)
         val image = openGraphData.images[0]
         assertEquals("https://example.com/rock.jpg", image.url)
+        assertEquals("https://secure.example.com/rock.jpg", image.secureUrl)
+        assertEquals("image/jpeg", image.type)
         assertEquals(300, image.width)
         assertEquals(200, image.height)
         assertEquals("A promotional image for The Rock", image.alt)
@@ -279,16 +289,22 @@ class ParserTest {
 
         // First image
         assertEquals("https://example.com/image1.jpg", openGraphData.images[0].url)
+        assertEquals("https://secure.example.com/image1.jpg", openGraphData.images[0].secureUrl)
+        assertEquals("image/jpeg", openGraphData.images[0].type)
         assertEquals(800, openGraphData.images[0].width)
         assertEquals(600, openGraphData.images[0].height)
 
         // Second image
         assertEquals("https://example.com/image2.jpg", openGraphData.images[1].url)
+        assertEquals("https://secure.example.com/image2.jpg", openGraphData.images[1].secureUrl)
+        assertEquals("image/png", openGraphData.images[1].type)
         assertEquals(1024, openGraphData.images[1].width)
         assertEquals(768, openGraphData.images[1].height)
 
         // Third image
         assertEquals("https://example.com/image3.jpg", openGraphData.images[2].url)
+        assertEquals("https://secure.example.com/image3.jpg", openGraphData.images[2].secureUrl)
+        assertEquals("image/gif", openGraphData.images[2].type)
         assertEquals(1200, openGraphData.images[2].width)
         assertEquals(900, openGraphData.images[2].height)
     }
