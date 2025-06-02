@@ -152,9 +152,9 @@ data class Audio(
 )
 
 data class Article(
-    val publishedTime: String?,
-    val modifiedTime: String?,
-    val expirationTime: String?,
+    val publishedTime: OffsetDateTime?,
+    val modifiedTime: OffsetDateTime?,
+    val expirationTime: OffsetDateTime?,
     val authors: List<String>,
     val section: String?,
     val tags: List<String>

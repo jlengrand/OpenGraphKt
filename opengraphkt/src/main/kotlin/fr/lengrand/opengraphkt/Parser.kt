@@ -357,9 +357,13 @@ class Parser {
             return null
         }
 
-        val publishedTime = articleTags.firstOrNull { it.property == "article:published_time" }?.content
-        val modifiedTime = articleTags.firstOrNull { it.property == "article:modified_time" }?.content
-        val expirationTime = articleTags.firstOrNull { it.property == "article:expiration_time" }?.content
+        val publishedTimeString = articleTags.firstOrNull { it.property == "article:published_time" }?.content
+        val modifiedTimeString = articleTags.firstOrNull { it.property == "article:modified_time" }?.content
+        val expirationTimeString = articleTags.firstOrNull { it.property == "article:expiration_time" }?.content
+
+        val publishedTime = parseDateTime(publishedTimeString)
+        val modifiedTime = parseDateTime(modifiedTimeString)
+        val expirationTime = parseDateTime(expirationTimeString)
         val section = articleTags.firstOrNull { it.property == "article:section" }?.content
         val authors = articleTags.filter { it.property == "article:author" }.map { it.content }
         val tags = articleTags.filter { it.property == "article:tag" }.map { it.content }

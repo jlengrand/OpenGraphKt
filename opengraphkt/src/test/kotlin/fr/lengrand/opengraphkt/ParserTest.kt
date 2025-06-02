@@ -211,8 +211,10 @@ class ParserTest {
 
         // Verify article-specific properties
         assertNotNull(openGraphData.article)
-        assertEquals("2023-01-01T00:00:00Z", openGraphData.article.publishedTime)
-        assertEquals("2023-01-02T12:00:00Z", openGraphData.article.modifiedTime)
+        assertNotNull(openGraphData.article.publishedTime)
+        assertEquals(OffsetDateTime.parse("2023-01-01T00:00:00Z"), openGraphData.article.publishedTime)
+        assertNotNull(openGraphData.article.modifiedTime)
+        assertEquals(OffsetDateTime.parse("2023-01-02T12:00:00Z"), openGraphData.article.modifiedTime)
         assertEquals("News", openGraphData.article.section)
         assertEquals(2, openGraphData.article.authors.size)
         assertTrue(openGraphData.article.authors.contains("John Doe"))
@@ -306,8 +308,10 @@ class ParserTest {
 
         // Verify article-specific properties
         assertNotNull(openGraphData.article)
-        assertEquals("2023-01-01T00:00:00Z", openGraphData.article.publishedTime)
-        assertEquals("2023-01-02T12:00:00Z", openGraphData.article.modifiedTime)
+        assertNotNull(openGraphData.article.publishedTime)
+        assertEquals(OffsetDateTime.parse("2023-01-01T00:00:00Z"), openGraphData.article.publishedTime)
+        assertNotNull(openGraphData.article.modifiedTime)
+        assertEquals(OffsetDateTime.parse("2023-01-02T12:00:00Z"), openGraphData.article.modifiedTime)
         assertEquals("News", openGraphData.article.section)
         assertEquals(2, openGraphData.article.authors.size)
         assertTrue(openGraphData.article.authors.contains("John Doe"))
