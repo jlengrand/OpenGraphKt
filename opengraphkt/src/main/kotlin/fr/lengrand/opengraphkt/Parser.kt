@@ -4,7 +4,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.io.File
+import java.net.URI
 import java.net.URL
+import java.time.OffsetDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * A comprehensive parser for Open Graph protocol tags.
@@ -18,10 +21,34 @@ import java.net.URL
 class Parser {
 
     /**
+     * Parses a string in ISO 8601 format to an OffsetDateTime.
+     * Handles both date-only (YYYY-MM-DD) and date-time formats.
+     * 
+     * @param dateTimeString The string to parse
+     * @return The parsed OffsetDateTime, or null if the string is null or cannot be parsed
+     */
+    private fun parseDateTime(dateTimeString: String?): OffsetDateTime? {
+        if (dateTimeString == null) {
+            return null
+        }
+
+        // Either parse full input or as date only
+        return try {
+            OffsetDateTime.parse(dateTimeString)
+        } catch (_: DateTimeParseException) {
+            try {
+                OffsetDateTime.parse(dateTimeString + "T00:00:00Z")
+            } catch (_: DateTimeParseException) {
+                null
+            }
+        }
+    }
+
+    /**
      * Extracts all Open Graph tags from a JSoup Document and returns a structured Data object.
      * 
      * @param document The JSoup Document to parse
-     * @return An Data object containing all extracted Open Graph data
+     * @return A Data object containing all extracted Open Graph data
      */
     fun parse(document: Document): Data {
         val tags = document.select("meta[property^=og:]")
@@ -100,7 +127,8 @@ class Parser {
         // Build basic properties
         val title = getFirstTagContent(tags, "title")
         val type = getFirstTagContent(tags, "type")
-        val url = getFirstTagContent(tags, "url")
+        val urlString = getFirstTagContent(tags, "url")
+        val url = urlString?.let{URI(urlString).toURL()}
         val description = getFirstTagContent(tags, "description")
         val siteName = getFirstTagContent(tags, "site_name")
         val determiner = getFirstTagContent(tags, "determiner")
@@ -329,9 +357,13 @@ class Parser {
             return null
         }
 
-        val publishedTime = articleTags.firstOrNull { it.property == "article:published_time" }?.content
-        val modifiedTime = articleTags.firstOrNull { it.property == "article:modified_time" }?.content
-        val expirationTime = articleTags.firstOrNull { it.property == "article:expiration_time" }?.content
+        val publishedTimeString = articleTags.firstOrNull { it.property == "article:published_time" }?.content
+        val modifiedTimeString = articleTags.firstOrNull { it.property == "article:modified_time" }?.content
+        val expirationTimeString = articleTags.firstOrNull { it.property == "article:expiration_time" }?.content
+
+        val publishedTime = parseDateTime(publishedTimeString)
+        val modifiedTime = parseDateTime(modifiedTimeString)
+        val expirationTime = parseDateTime(expirationTimeString)
         val section = articleTags.firstOrNull { it.property == "article:section" }?.content
         val authors = articleTags.filter { it.property == "article:author" }.map { it.content }
         val tags = articleTags.filter { it.property == "article:tag" }.map { it.content }
@@ -350,7 +382,7 @@ class Parser {
      * Builds an Profile object from profile-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
-     * @return An Profile object, or null if no profile tags are found
+     * @return A Profile object, or null if no profile tags are found
      */
     private fun buildProfile(groupedTags: Map<String, List<Tag>>): Profile? {
         val profileTags = groupedTags.getOrDefault("profile", emptyList())
@@ -362,7 +394,8 @@ class Parser {
         val firstName = profileTags.firstOrNull { it.property == "profile:first_name" }?.content
         val lastName = profileTags.firstOrNull { it.property == "profile:last_name" }?.content
         val username = profileTags.firstOrNull { it.property == "profile:username" }?.content
-        val gender = profileTags.firstOrNull { it.property == "profile:gender" }?.content
+        val genderString = profileTags.firstOrNull { it.property == "profile:gender" }?.content
+        val gender = genderString?.let(Gender::fromString)
 
         return Profile(
             firstName = firstName,
@@ -387,7 +420,8 @@ class Parser {
 
         val authors = bookTags.filter { it.property == "book:author" }.map { it.content }
         val isbn = bookTags.firstOrNull { it.property == "book:isbn" }?.content
-        val releaseDate = bookTags.firstOrNull { it.property == "book:release_date" }?.content
+        val releaseDateString = bookTags.firstOrNull { it.property == "book:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = bookTags.filter { it.property == "book:tag" }.map { it.content }
 
         return Book(
@@ -440,18 +474,23 @@ class Parser {
         }
 
         val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val songDisc = musicTags.firstOrNull { it.property == "music:song:disc" }?.content?.toIntOrNull()
+        val songTrack = musicTags.firstOrNull { it.property == "music:song:track" }?.content?.toIntOrNull()
         val musicians = musicTags.filter { it.property == "music:musician" }.map { it.content }
-        val releaseDate = musicTags.firstOrNull { it.property == "music:release_date" }?.content
+        val releaseDateString = musicTags.firstOrNull { it.property == "music:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
 
         return MusicAlbum(
             songs = songs,
+            songDisc =  songDisc,
+            songTrack = songTrack,
             musician = musicians,
             releaseDate = releaseDate
         )
     }
 
     /**
-     * Builds an MusicPlaylist object from music.playlist-related tags.
+     * Builds a MusicPlaylist object from music.playlist-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
      * @return An MusicPlaylist object, or null if no music.playlist tags are found
@@ -464,16 +503,20 @@ class Parser {
         }
 
         val songs = musicTags.filter { it.property == "music:song" }.map { it.content }
+        val songDisc = musicTags.firstOrNull { it.property == "music:song:disc" }?.content?.toIntOrNull()
+        val songTrack = musicTags.firstOrNull { it.property == "music:song:track" }?.content?.toIntOrNull()
         val creator = musicTags.firstOrNull { it.property == "music:creator" }?.content
 
         return MusicPlaylist(
             songs = songs,
+            songDisc =  songDisc,
+            songTrack = songTrack,
             creator = creator
         )
     }
 
     /**
-     * Builds an MusicRadioStation object from music.radio_station-related tags.
+     * Builds a MusicRadioStation object from music.radio_station-related tags.
      * 
      * @param groupedTags The map of grouped Tag objects
      * @return An MusicRadioStation object, or null if no music.radio_station tags are found
@@ -509,7 +552,8 @@ class Parser {
         val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
         val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
         val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
-        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDateString = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
 
         return VideoMovie(
@@ -539,7 +583,8 @@ class Parser {
         val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
         val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
         val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
-        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDateString = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
         val series = videoTags.firstOrNull { it.property == "video:series" }?.content
 
