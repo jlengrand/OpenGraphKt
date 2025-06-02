@@ -420,7 +420,8 @@ class Parser {
 
         val authors = bookTags.filter { it.property == "book:author" }.map { it.content }
         val isbn = bookTags.firstOrNull { it.property == "book:isbn" }?.content
-        val releaseDate = bookTags.firstOrNull { it.property == "book:release_date" }?.content
+        val releaseDateString = bookTags.firstOrNull { it.property == "book:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = bookTags.filter { it.property == "book:tag" }.map { it.content }
 
         return Book(
@@ -551,7 +552,8 @@ class Parser {
         val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
         val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
         val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
-        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDateString = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
 
         return VideoMovie(
@@ -581,7 +583,8 @@ class Parser {
         val directors = videoTags.filter { it.property == "video:director" }.map { it.content }
         val writers = videoTags.filter { it.property == "video:writer" }.map { it.content }
         val duration = videoTags.firstOrNull { it.property == "video:duration" }?.content?.toIntOrNull()
-        val releaseDate = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDateString = videoTags.firstOrNull { it.property == "video:release_date" }?.content
+        val releaseDate = parseDateTime(releaseDateString)
         val tags = videoTags.filter { it.property == "video:tag" }.map { it.content }
         val series = videoTags.firstOrNull { it.property == "video:series" }?.content
 

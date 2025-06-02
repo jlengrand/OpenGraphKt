@@ -163,7 +163,7 @@ data class Article(
 data class Book(
     val authors: List<String>,
     val isbn: String?,
-    val releaseDate: String?,
+    val releaseDate: OffsetDateTime?,
     val tags: List<String>
 )
 
@@ -206,7 +206,7 @@ data class VideoMovie(
     val director: List<String>,
     val writer: List<String>,
     val duration: Int?,
-    val releaseDate: String?,
+    val releaseDate: OffsetDateTime?,
     val tags: List<String>
 )
 
@@ -215,7 +215,7 @@ data class VideoEpisode(
     val director: List<String>,
     val writer: List<String>,
     val duration: Int?,
-    val releaseDate: String?,
+    val releaseDate: OffsetDateTime?,
     val tags: List<String>,
     val series: String?
 )
