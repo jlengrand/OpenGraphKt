@@ -697,4 +697,15 @@ class ParserTest {
         assertTrue(openGraphData.videoEpisode.tags.contains("comedy"))
         assertEquals("Awesome Series", openGraphData.videoEpisode.series)
     }
+
+    @Test
+    fun `test Gender enum toString method`() {
+        // Test that the toString method returns the lowercase name of the enum value
+        assertEquals("male", Gender.MALE.toString())
+        assertEquals("female", Gender.FEMALE.toString())
+
+        // Test that the fromString method correctly converts a string to the enum value
+        assertEquals(Gender.MALE, Gender.fromString("MALE"))
+        assertEquals(Gender.FEMALE, Gender.fromString("FEMALE"))
+    }
 }

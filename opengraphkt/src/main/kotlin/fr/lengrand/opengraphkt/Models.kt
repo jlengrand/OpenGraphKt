@@ -60,7 +60,7 @@ enum class Gender {
     }
 
     override fun toString(): String {
-        return this.toString().lowercase()
+        return this.name.lowercase()
     }
 }
 
