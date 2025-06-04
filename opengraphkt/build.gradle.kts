@@ -14,7 +14,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jsoup:jsoup:1.20.1")
+    implementation("com.fleeksoft.ksoup:ksoup:0.2.4")
+    implementation("com.fleeksoft.ksoup:ksoup-kotlinx:0.2.4")
+    implementation("com.fleeksoft.ksoup:ksoup-network:0.2.4")
     testImplementation(kotlin("test"))
 }
 
