@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("fr.lengrand:opengraphkt:0.0.2")
+    implementation("fr.lengrand:opengraphkt:0.1.0")
     testImplementation(kotlin("test"))
 }
 
