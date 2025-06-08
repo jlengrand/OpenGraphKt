@@ -67,8 +67,7 @@ class Parser {
      * @return A Data object containing all extracted Open Graph data.
      */
     fun parse(url: URL) : Data {
-        val doc = Ksoup.parseGetRequestBlocking(url.toString())
-        return parse(doc)
+        return parse(Ksoup.parseGetRequestBlocking(url.toString()))
     }
 
     /**
