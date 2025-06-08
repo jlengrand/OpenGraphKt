@@ -1,8 +1,11 @@
 package fr.lengrand.opengraphkt
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
+import com.fleeksoft.ksoup.Ksoup
+import com.fleeksoft.ksoup.network.parseGetRequestBlocking
+import com.fleeksoft.ksoup.nodes.Document
+import com.fleeksoft.ksoup.parseFile
+import com.fleeksoft.ksoup.select.Elements
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -61,21 +64,20 @@ class Parser {
      * Extracts all Open Graph tags from a URL and returns a structured Data object.
      *
      * @param url The URL to be parsed for Open Graph information.
-     * @return An Data object containing all extracted Open Graph data.
+     * @return A Data object containing all extracted Open Graph data.
      */
     fun parse(url: URL) : Data {
-        val doc = Jsoup.connect(url.toString()).get()
-        return parse(doc)
+        return parse(Ksoup.parseGetRequestBlocking(url.toString()))
     }
 
     /**
      * Extracts all Open Graph tags from a raw HTML String and returns a structured Data object.
      *
      * @param html The raw HTML String to be parsed for Open Graph information.
-     * @return An Data object containing all extracted Open Graph data.
+     * @return A Data object containing all extracted Open Graph data.
      */
     fun parse(html: String) : Data {
-        val doc = Jsoup.parse(html)
+        val doc = Ksoup.parse(html)
         return parse(doc)
     }
 
@@ -84,10 +86,12 @@ class Parser {
      *
      * @param file The file to parse
      * @param charset The charset to use for parsing (default is UTF-8)
-     * @return An Data object containing all extracted Open Graph data.
+     * @return A Data object containing all extracted Open Graph data.
      */
     fun parse(file: File, charset: String = "UTF-8") : Data {
-        val doc = Jsoup.parse(file, charset)
+        val doc = runBlocking {
+            Ksoup.parseFile(file, file.absolutePath, charset)
+        }
         return parse(doc)
     }
 

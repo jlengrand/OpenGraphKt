@@ -1,6 +1,6 @@
 package fr.lengrand.opengraphkt
 
-import org.jsoup.Jsoup
+import com.fleeksoft.ksoup.Ksoup
 import java.io.File
 import java.net.URI
 
@@ -25,7 +25,7 @@ fun main() {
     println("\nExample 2: Parsing from File")
     try {
         val resourceUrl = object {}.javaClass.getResource("/example.html")
-        val resourceFile = File(resourceUrl.toURI())
+        val resourceFile = File(resourceUrl!!.toURI())
 
         // Parse the file
         val openGraphData = parser.parse(resourceFile)
@@ -66,7 +66,7 @@ fun main() {
     // Example 4: Parse Open Graph data from a Jsoup Document
     println("\nExample 4: Parsing from JSoup Document")
 
-    val doc = Jsoup.parse(html)
+    val doc = Ksoup.parse(html)
     val openGraphDataDoc = parser.parse(doc)
 
     println("Title: ${openGraphDataDoc.title}")
