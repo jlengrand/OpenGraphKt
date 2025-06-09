@@ -9,13 +9,12 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/jlengrand/OpenGraphKt)
 
 
-[OpenGraphKt](https://github.com/jlengrand/OpenGraphKt) is a minimalist Kotlin library to work with the [Open Graph tags](https://ogp.me/) protocol. 
+[OpenGraphKt](https://github.com/jlengrand/OpenGraphKt) is a minimalist Kotlin multiplatform library to work with the [Open Graph tags](https://ogp.me/) protocol. 
 OpenGraphKt is a tiny wrapper on top of JSoup.
 
 ## Current status 
 
 * Library can extract OpenGraph tags from HTML via a `URL`, `String` or `File` input.
-* Current implementation is JVM only, due to the `JSoup` dependency.
 * Protocol implementation is complete for `og:` tags, but types aren't fully correct (most types currently are `String`).
 * Library should be considered in pre-alpha, use this in production at your own risks :).
 
@@ -28,7 +27,7 @@ In short :
 * Add dependency to your Maven / Gradle file. For example : 
 
 ```bash
-    implementation("fr.lengrand:opengraphkt:0.0.2")
+    implementation("fr.lengrand:opengraphkt:0.1.0")
 ```
 
 * Enjoy: 
@@ -43,11 +42,6 @@ println("Is valid: ${openGraphDataDoc.isValid()}")
 // Title: The Rock
 // Is valid: true
 ```
-
-
-## Dependencies
-
-- [JSoup](https://jsoup.org/)
 
 ## Author
 
