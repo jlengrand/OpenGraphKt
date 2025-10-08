@@ -16,7 +16,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":opengraphkt"))
-    implementation("io.ktor:ktor-client-core:3.1.3")
+    implementation("io.ktor:ktor-client-core:3.3.1")
     implementation("io.ktor:ktor-client-cio:3.1.3")
 }
 
