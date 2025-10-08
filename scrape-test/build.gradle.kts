@@ -17,7 +17,7 @@ dependencies {
 
     implementation(project(":opengraphkt"))
     implementation("io.ktor:ktor-client-core:3.1.3")
-    implementation("io.ktor:ktor-client-cio:3.1.3")
+    implementation("io.ktor:ktor-client-cio:3.3.1")
 }
 
 tasks.test {
