@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("fr.lengrand:opengraphkt:0.1.1")
+    implementation("fr.lengrand:opengraphkt:0.1.2")
     testImplementation(kotlin("test"))
 }
 
@@ -23,5 +23,5 @@ kotlin {
 }
 
 application {
-    mainClass = "fr.lengrand.opengraphkt.MainKt"
+    mainClass = "fr.lengrand.opengraphktremote.MainKt"
 }
