@@ -36,7 +36,7 @@ tasks.jar {
 }
 
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(24)
 }
 
 mavenPublishing {
