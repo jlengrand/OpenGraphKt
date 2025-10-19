@@ -109,51 +109,43 @@ OpenGraphKt follows [Semantic Versioning](https://semver.org/):
 
 ### Publishing to Maven Central
 
-The project uses the `com.vanniktech.maven.publish` plugin for publishing.
+The project uses the `com.vanniktech.maven.publish` plugin for publishing. Publishing is automated through GitHub Actions.
 
-1. **Configure credentials** (first time only):
-   - Set up Sonatype Central Portal account
-   - Configure GPG signing keys
-   - Add credentials to `~/.gradle/gradle.properties`:
-     ```properties
-     mavenCentralUsername=your-username
-     mavenCentralPassword=your-password
-     signing.keyId=your-key-id
-     signing.password=your-key-password
-     signing.secretKeyRingFile=/path/to/secring.gpg
-     ```
+1. **Bump version ** in `opengraphkt/build.gradle.kts`:
+   ```kotlin
+   version = "0.1.4"
+   ```
 
-2. **Publish to local Maven for testing**:
+2. **Publish to local Maven for testing** (optional):
    ```bash
    ./gradlew publishToMavenLocal
    ```
 
-3. **Publish to Maven Central**:
-   ```bash
-   ./gradlew publishAllPublicationsToMavenCentral
-   ```
-
-4. **Create Git tag and push**:
-   ```bash
-   git tag v0.1.3
-   git push origin v0.1.3
-   ```
-
-5. **Create GitHub release**:
-   - Go to GitHub repository → Releases
-   - Create new release from the tag
+3. **Create GitHub release** (this triggers the publishing workflow):
+   - Go to GitHub repository → Releases → "Draft a new release"
+   - Click "Choose a tag" and create a new tag (e.g., `v0.1.3`)
+   - Set the release title (e.g., `v0.1.3`)
    - Add release notes describing changes
+   - Click "Publish release"
+
+4. **GitHub Actions will automatically**:
+   - Build the project
+   - Run tests
+   - Publish to Maven Central
+   - The workflow is triggered automatically when you create a new release
+
+5. After a few minutes, you will see the new version in [Maven Central](https://mvnrepository.com/artifact/fr.lengrand/opengraphkt). You can also directly check the real-time status on [Central Sonartype](https://central.sonatype.com/publishing/deployments).
 
 ### Post-Release Steps
 
 1. **Bump version to next SNAPSHOT** in `opengraphkt/build.gradle.kts`:
    ```kotlin
-   version = "0.1.4-SNAPSHOT"
+   version = "0.1.5-SNAPSHOT"
    ```
 
 2. **Commit version bump**:
    ```bash
-   git commit -am "Bump version to 0.1.4-SNAPSHOT"
+   git commit -am "Bump version to 0.1.5-SNAPSHOT"
    git push
    ```
 
