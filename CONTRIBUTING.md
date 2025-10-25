@@ -6,7 +6,7 @@ Thank you for your interest in contributing to OpenGraphKt! This document provid
 
 ### Prerequisites
 
-- Java 24 (JVM toolchain)
+- Java 17 or later (JVM toolchain configured for Java 17)
 - Gradle 8.14.3+ (wrapper included)
 - Git
 

@@ -66,7 +66,8 @@ The parser extracts `meta[property^=og:]` tags and builds structured data models
 
 ## Development Notes
 
-- **JVM Toolchain**: Java 24 (see `jvmToolchain(24)` in build files)
+- **JVM Toolchain**: Java 17 (see `jvmToolchain(17)` in build files)
+- **Minimum Java Version**: Java 17 (required by Ksoup dependency)
 - **Testing**: CI matrix tests on Java 17 and 23 via GitHub Actions
 - **Dependencies**: Core library uses Ksoup (v0.2.5) for HTML parsing and network requests
 - **Maven Coordinates**: Group `fr.lengrand`, artifact `opengraphkt`, currently at `0.1.2-SNAPSHOT`
