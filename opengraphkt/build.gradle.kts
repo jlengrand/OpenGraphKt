@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "fr.lengrand"
-version = "0.1.3-SNAPSHOT"
+version = "0.1.3"
 
 repositories {
     mavenCentral()
@@ -33,8 +33,16 @@ tasks.jar {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 mavenPublishing {
