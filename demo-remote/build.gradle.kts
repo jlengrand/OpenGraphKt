@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation("fr.lengrand:opengraphkt:0.1.2")
+    implementation("fr.lengrand:opengraphkt:0.1.3")
     testImplementation(kotlin("test"))
 }
 
@@ -19,7 +19,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(17)
 }
 
 application {
