@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm")
     id("com.vanniktech.maven.publish") version "0.34.0"
-    id("org.jetbrains.kotlinx.kover") version "0.9.3"
+    id("org.jetbrains.kotlinx.kover") version "0.9.9"
 }
 
 group = "fr.lengrand"
