@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation("com.fleeksoft.ksoup:ksoup:0.2.5")
-    implementation("com.fleeksoft.ksoup:ksoup-kotlinx:0.2.5")
+    implementation("com.fleeksoft.ksoup:ksoup-kotlinx:0.2.6")
     implementation("com.fleeksoft.ksoup:ksoup-network:0.2.5")
     implementation(project(":opengraphkt"))
     testImplementation(kotlin("test"))
